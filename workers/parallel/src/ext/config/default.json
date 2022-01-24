@@ -1,0 +1,11 @@
+{
+  "server": "localhost:9000",
+  "testcase": "289c84eb-7138-4c8e-bc72-9a536f2991f1",
+  "role": "leader",
+  "autostart": "false",
+  "replay": "false",
+  "sendverify": "false",
+  "prodjs": "default.js",
+  "accessibility": "false",
+  "description": "this is a description"
+}

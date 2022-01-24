@@ -1,0 +1,139 @@
+
+html {
+    line-height: 1.15;
+    -ms-text-size-adjust: 100%;
+    -webkit-text-size-adjust: 100%;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+    color: #565656;
+    font-family: Metropolis,"Avenir Next","Helvetica Neue",Arial,sans-serif;
+    font-size: 24px;
+}
+
+body {
+    margin: 0;
+    color: #565656;
+    font-weight: 400;
+    font-size: .583333rem;
+    letter-spacing: normal;
+    line-height: 1rem;
+    font-family: Metropolis,"Avenir Next","Helvetica Neue",Arial,sans-serif;
+    margin-top: 0!important;
+}
+
+.dialog-container {
+    width: 300px;
+}
+
+.alert {
+    font-size: .541667rem;
+    letter-spacing: normal;
+    line-height: .75rem;
+    position: relative;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: row;
+    width: auto;
+    border-radius: .125rem;
+    margin: 0;
+    padding: 0;
+    background: #e1f1f6;
+    color: #565656;
+    border: 1px solid #46afd9;
+}
+
+.alert.alert-warning {
+    background: #fef3b5;
+    color: #565656;
+    border: 1px solid #fdd006;
+}
+
+.alert.alert-success {
+    background: #dff0d0;
+    color: #565656;
+    border: 1px solid #60b515;
+}
+
+.alert-items {
+    flex: 1 1 auto;
+    flex-flow: column nowrap;
+    padding: .333333rem calc(.5rem - 1px);
+    display: flex;
+}
+
+.alert-item {
+    flex: 1 1 auto;
+    display: flex;
+    flex-wrap: nowrap;
+    min-height: .75rem;
+    margin-bottom: .25rem;
+}
+
+.alert-item:last-child {
+    margin-bottom: 0;
+}
+
+#closeButton {
+    width: 24px;
+    height: 24px;
+}
+
+.alert-icon {
+    height: 1rem;
+    width: 1rem;
+    margin-left: -.125rem;
+    margin-top: -.166667rem;
+    display: inline-block;
+    padding: 0;
+    background-repeat: no-repeat;
+    background-size: contain;
+    vertical-align: middle;
+    fill: currentColor;
+    flex: 0 0 1.0416666667rem;
+    align-self: start;
+    padding-top: .0416666667rem;
+    height: .75rem;
+}
+
+.alert.alert-success .alert-icon {
+    color: #2f8400;
+}
+
+.alert-item>span, .alert-text {
+    display: inline-block;
+    flex-grow: 1;
+    flex-shrink: 1;
+    flex-basis: 98%;
+    max-width: 98%;
+    margin-right: .5rem;
+    text-align: left;
+}
+
+button.close {
+    padding: 0;
+    cursor: pointer;
+    background: 0 0;
+    border: 0;
+    -webkit-appearance: none;
+}
+
+.alert .close {
+    color: #565656;
+    opacity: 1;
+    width: 1rem;
+    display: block;
+    height: 1.4rem;
+    flex: 0 0 1.166667rem;
+    order: 100;
+    padding-right: .166667rem;
+    line-height: inherit;
+}
+
+.alert.alert-warning .close {
+    color: #565656;
+    opacity: 1;
+}
+
+div.alert + div.alert {
+    margin: 5px 0 0;
+}

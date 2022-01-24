@@ -1,0 +1,57 @@
+<!-- 
+	Copyright 2022 VMware, Inc.
+	SPDX-License-Identifier: Apache License 2.0
+-->
+<html>
+  <head>
+    <title>Parallel Extension</title>
+    <meta charset='utf-8'>
+    <link rel="stylesheet" type="text/css" href="../css/style.css" />
+    <script src="control.js"></script>
+    <script src="../js/jquery/jquery.min.js"></script>
+  </head>
+  <body>
+    <form name="control">
+      <div>
+        <label><b>Server:Port</b></label>
+        <input type="text" name="server" value=""/>
+        <label><b>TestCase</b></label>
+        <input type="text" name="testcase" value=""/>
+        <label><b>Role</b></label>
+        <select name="role">
+            <option value="leader">leader</option>
+            <option value="worker">worker</option>
+        </select><br>
+        <label><b>Actions</b></label>
+        <select name="action">
+            <option value="screenshot">Take Screenshot</option>
+            <option value="report_issue">Report Issue</option>
+            <option value="unlocal_check">Check Unlocal Strings</option>
+            <option value="refresh">Refresh</option>
+        </select>
+        <button type="button" id="act" name="act" disabled=true>Go</button>
+        <label><b>non-ASCII Strings</b></label>
+        <select name="nastrings">
+            <option value="Super-String">表ポあA中Œ鷗停B逍</option>
+            <option value="Simplified-Chinese">神媵丂㐀𠀀功懸繁體</option>
+            <option value="Traditional-Chinese">功懸繁體 字總表</option>
+            <option value="Japanese">株sいうえ おサシ園か゚アｱ１1ａa</option>
+            <option value="Korean">ㄱㄷㅑㅓ하 늘천따겨울연가</option>
+            <option value="Cyrillic">АБВГДЕЖфхцчшщъыьэюяё</option>
+            <option value="Czech">Češi udělali</option>
+            <option value="Arabic (RTL)">اللغة abcالعربِية لغة جميلة.</option>
+            <option value="Vietnamese">ằỰịÌỈỵỲỶđĐ₫Ử</option>
+        </select>
+        <button type="button" id="nainput" name="nainput" disabled=true>Input</button>
+        <div>
+          <label><b>Control Panel</b></label>
+          <input type="checkbox" name="control-panel" id="control-panel" value=""/><label class="control-panel">Set visible</label>
+        </div>
+        <input type="submit" id="start" name="start" value="Start"/>
+        <input type="submit" id="stop" name="stop" value="Stop" style="display:none;"/>
+        <input type="submit" id="pause" name="pause" value="Pause" style="display:none;"/>
+        <input type="submit" id="resume" name="resume" value="Resume" style="display:none;"/>
+      </div>
+    </form>
+  </body>
+</html>

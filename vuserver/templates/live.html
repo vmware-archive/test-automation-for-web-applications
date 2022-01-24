@@ -1,0 +1,37 @@
+<!-- 
+	Copyright 2022 VMware, Inc.
+	SPDX-License-Identifier: Apache License 2.0
+-->
+{% extends "base.html" %}
+
+{% block title %}{{ testcase.name }}{% endblock %}
+{% block header %}
+<header class='rtestcase-page'>
+    <h1>{{ testcase.name }}</h1>
+    <!-- {% if user.is_authenticated %}
+        <a href="/accounts/logout/">Logout</a>
+    {% endif %} -->
+</header>
+{% endblock %}
+
+{% block extra_body %}
+    <div id="table">
+        {% for console in worker_consoles %}
+            {% if forloop.counter0|divisibleby:3 %}
+            <div class="row">
+            {% endif %}
+                <div class="cell">
+                    <h5 align="left">{{ console.locale }}</h5>
+                    <iframe align="left" width="480" height="300" src="{{ console.vnc_webprotocol }}://{{ console.vnc_host }}:{{ console.vnc_port }}/?password=vncpassword&view_only=true&resize=downscale&clip=false&autoconnect=1"  frameborder="0" allowfullscreen></iframe>
+                </div>
+            {% if forloop.counter0|add:-2|divisibleby:3 %}
+            </div>
+            {% endif %}
+        {% endfor %}
+
+        {% if not worker_consoles|length|divisibleby:3 %}
+            </div>
+        {% endif %}
+    </div>
+
+{% endblock %}

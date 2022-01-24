@@ -1,0 +1,318 @@
+
+---
+test_name: Get testcase
+
+includes:
+  - !include includes.yaml
+
+stages:
+  - name: Verify testcase API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/live/{TESTCASE_UUID:s}"
+      method: GET
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+---
+test_name: Get uievents
+
+includes:
+  - !include includes.yaml
+
+stages:
+  - name: Verify uievents API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/uievents/{TESTCASE_ID:s}"
+      method: GET
+    response:
+      strict:
+        - json:off
+      status_code: 200
+      json:
+        message: 'success'
+---
+test_name: Get last_event
+
+includes:
+  - !include includes.yaml
+
+stages:
+  - name: Verify last_event API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/last_event/{TESTCASE_ID:s}"
+      method: GET
+    response:
+      strict:
+        - json:off
+      status_code: 200
+      json:
+        message: 'success'
+
+---
+test_name: Get fulluievents
+
+includes:
+  - !include includes.yaml
+
+stages:
+  - name: Verify fulluievents API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/fulluievents"
+      method: GET
+    response:
+      strict:
+        - json:off
+      status_code: 200
+      json:
+        message: 'success'
+
+---
+test_name: Get singlerun_events
+
+includes:
+  - !include includes.yaml
+
+stages:
+  - name: Verify singlerun_events API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/uievents/{TESTCASE_ID:s}/{RUN_ID:s}"
+      method: GET
+    response:
+      strict:
+        - json:off
+      status_code: 200
+      json:
+        message: 'success'
+
+---
+test_name: Get cloned singlerun_events
+
+includes:
+  - !include includes.yaml
+
+stages:
+  - name: Verify singlerun_events API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/uievents/{CLONED_TEST_ID:s}/{CLONED_RUN_ID:s}"
+      method: GET
+    response:
+      strict:
+        - json:off
+      status_code: 200
+      json:
+        message: 'success'
+
+---
+test_name: Get captures
+
+includes:
+  - !include includes.yaml
+
+stages:
+  - name: Verify captures API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/captures/{TESTCASE_ID:s}/{RUN_ID:s}"
+      method: GET
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+---
+test_name: Get event capture
+
+includes:
+  - !include includes.yaml
+
+stages:
+  - name: Verify captures API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/capturedimage/{CAPTURE_EVENT_ID:s}"
+      method: GET
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+---
+test_name: Get configurationuievents
+
+includes:
+  - !include includes.yaml
+
+stages:
+  - name: Verify captures API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/configurationuievents/"
+      method: POST
+      json:
+        ids: [974701]
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+---
+test_name: Get capture
+
+includes:
+  - !include includes.yaml
+
+stages:
+  - name: Verify capture API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/capture/{CAPTURE_ID:s}"
+      method: GET
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+---
+test_name: Get users/user
+
+includes:
+  - !include includes.yaml
+
+stages:
+  - name: Verify users/user API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/users/user"
+      method: GET
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+---
+test_name: Get users/time
+
+includes:
+  - !include includes.yaml
+
+stages:
+  - name: Verify users/time API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/users/time"
+      method: GET
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+---
+test_name: Get usertests
+
+includes:
+  - !include includes.yaml
+
+stages:
+  - name: Verify usertests API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/usertests/{USER_NAME}"
+      method: GET
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+---
+test_name: Get fulltests/user
+
+includes:
+  - !include includes.yaml
+
+stages:
+  - name: Verify fulltests/user API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/fulltests/user"
+      method: GET
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+---
+test_name: Get fulltests/time
+
+includes:
+  - !include includes.yaml
+
+stages:
+  - name: Verify fulltests/time API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/fulltests/time"
+      method: GET
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+# slow
+# ---
+# test_name: Get fulltests/test
+
+# includes:
+#   - !include includes.yaml
+
+# stages:
+#   - name: Verify fulltests/test API
+#     request:
+#       url: "{SERVER_ROOT:s}/parallel/fulltests/test"
+#       method: GET
+#     response:
+#       strict:
+#         - json:off
+#       status_code: 200
+
+---
+test_name: Get fulltests/product
+
+includes:
+  - !include includes.yaml
+
+stages:
+  - name: Verify fulltests/product API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/fulltests/product"
+      method: GET
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+
+---
+test_name: Get uievents_stat
+
+includes:
+  - !include includes.yaml
+
+stages:
+  - name: Verify uievents_stat API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/uievents_stat/5090/5095"
+      method: GET
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+
+---
+test_name: Get test_report
+
+includes:
+  - !include includes.yaml
+
+stages:
+  - name: Verify test_report API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/tests/{TESTCASE_UUID}/report"
+      method: GET
+    response:
+      strict:
+        - json:off
+      status_code: 200

@@ -1,4 +1,8 @@
-# Ignore everything in this directory
-*
-# Except this file
-!.gitignore
+*.pyc
+*.rdb
+*.sqlite3
+*.db
+*.DS_store
+.tox/
+*.egg-info/
+*.log

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Parallel Extension</title>
+    <meta charset='utf-8'>
+    <link rel="stylesheet" type="text/css" href="/js/bootstrap/css/bootstrap.min.css" />
+    <link rel="stylesheet" type="text/css" href="style.css" />
+    <script src="/js/jquery3/jquery.min.js" ></script>
+    <script src="/js/jquery-ui/jquery-ui.min.js" ></script>
+    <script src="/js/bootstrap/js/bootstrap.min.js" ></script>
+    <script type="module" src="main.js"></script>
+  </head>
+    <body>
+        <div class="modal" id="screenshotModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Screenshot</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-container">
+                        <form>
+                            <div class="form-group row">
+                                <div class="col-3">
+                                    <label for="vtaasName">Name:</label>
+                                </div>
+                                <div class="col-8">
+                                    <input id="screenshot-name" name="name" placeholder="screenshot name" size="25" type="text">
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-3">
+                                    <label for="vtaasArea">Capture area:</label>
+                                </div>
+                                <div class="col-8">
+                                    <label>
+                                        <input id="element-area-radio" name="screenshot" value="element" type="radio">
+                                        <span>One element</span>
+                                    </label>
+                                    <label class="vtaas-screenshot-screen">
+                                        <input id="screen-area-radio" name="screenshot" value="screen" type="radio" checked>
+                                        <span>Whole screen</span>
+                                    </label>
+                                    <label class="vtaas-screenshot-screen">
+                                        <input id="full-page-area-radio" name="screenshot" value="fullpage" type="radio">
+                                        <span>Full page</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div id="element-select-row" class="form-group row">
+                                <div class="col-3">
+                                    <label for="vtaas-ss-element-textbox">Element:</label>
+                                </div>
+                                <div class="col-7">
+                                    <input id="vtaas-ss-element-textbox" name="element" placeholder="" size="30" type="text" class="vtaas-ss-element-path">
+                                </div>
+                                <div class="col-1">
+                                    <button id="elementButton" type="button" class="element-button">Select</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">CANCEL</button>
+                        <button id="ok" type="button" class="btn btn-primary">OK</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

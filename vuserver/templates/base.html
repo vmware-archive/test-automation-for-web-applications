@@ -1,0 +1,30 @@
+<!-- 
+	Copyright 2022 VMware, Inc.
+	SPDX-License-Identifier: Apache License 2.0
+-->
+<!DOCTYPE html>
+
+{% load staticfiles %}
+{% csrf_token %}
+
+<html>
+<head>
+    <title>{% block title %}{% endblock %}</title>
+	<meta charset="UTF-8">
+	<link rel="stylesheet" href="{% static "css/style.css" %}" type="text/css" media="screen" />
+	<link rel="shortcut icon" href="/static/favicon.ico">
+	<script src="{% static "js/jquery-1.12.2.min.js" %}" type="text/javascript"></script>
+	<script src="{% static "js/channels/reconnecting-websocket.js" %}" type="text/javascript"></script>
+	{% block extra_head %}{% endblock %}
+</head>
+<body>
+	{% block header %}
+	{% endblock %}
+	<section>
+		{% block content %}
+		{% endblock %}
+	</section>
+	{% block extra_body %}
+	{% endblock %}
+</body>
+</html>

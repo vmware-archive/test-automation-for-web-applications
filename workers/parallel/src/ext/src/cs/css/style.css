@@ -1,0 +1,532 @@
+
+*, *::before, *::after {
+    box-sizing: inherit;
+}
+
+/* Dialog */
+.vtaas-dialog {
+    display:block;
+    position:fixed;
+    z-index:2147483647;
+    padding:20px;
+    box-sizing:border-box;
+    border:1px solid #ccc;
+    background:rgba(241,241,241,1);
+    box-shadow: 5px 5px 10px #888888;
+    color:black;
+}
+
+.vtaas-modal {
+    display:block;
+    position:fixed;
+    z-index:2147483647;
+    padding:20px;
+    /*top:50%;
+    left:50%;*/
+    /*min-width:480px;*/
+    /*margin-left:-240px;
+    margin-top:-160px;*/
+    box-sizing: border-box;
+    border:1px solid #ccc;
+    background:rgba(241,241,241,1);
+    box-shadow: 5px 5px 10px #888888;
+    color:black;
+    font-size: 24px;
+    font-family: Metropolis,"Avenir Next","Helvetica Neue",Arial,sans-serif;
+}
+
+.vtaas-modal .vtaas-form-group {
+    display: flex;
+    flex-wrap: wrap;
+    position: relative;
+    padding-left: 0;
+    font-size: 14px;
+    letter-spacing: normal;
+    line-height: 24px;
+    margin-bottom: 12px;
+}
+
+.vtaas-modal .vtaas-form-group input[type=datetime-local],
+.vtaas-modal .vtaas-form-group input[type=number],
+.vtaas-modal .vtaas-form-group input[type=password],
+.vtaas-modal .vtaas-form-group input[type=text] {
+    margin: 0;
+    padding: 0;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    background: none;
+    height: 24px;
+    color: #000;
+    display: inline-block;
+    min-width: 60px;
+    border-bottom: 1px solid #9a9a9a;
+    padding: 0 6px;
+}
+
+.vtaas-modal .vtaas-form-group .vtaas-select,
+.vtaas-modal .vtaas-form-group a,
+.vtaas-modal .vtaas-form-group button,
+.vtaas-modal .vtaas-form-group label,
+.vtaas-modal .vtaas-form-group span,
+.vtaas-modal .vtaas-form-group textarea,
+.vtaas-modal .vtaas-form-group input[type=button],
+.vtaas-modal .vtaas-form-group input[type=submit],
+.vtaas-modal .vtaas-form-group input[type=datetime-local],
+.vtaas-modal .vtaas-form-group input[type=number],
+.vtaas-modal .vtaas-form-group input[type=password],
+.vtaas-modal .vtaas-form-group input[type=text] {
+    margin-top: 6px;
+    margin-bottom: 6px;
+}
+
+.vtaas-modal .vtaas-form-group input[type=datetime-local]:not([readonly]),
+.vtaas-modal .vtaas-form-group input[type=number]:not([readonly]),
+.vtaas-modal .vtaas-form-group input[type=password]:not([readonly]),
+.vtaas-modal .vtaas-form-group input[type=text]:not([readonly]) {
+    background: linear-gradient(180deg,transparent 95%,#0094d2 0) no-repeat;
+    background-size: 0 100%;
+    transition: background-size .2s ease;
+}
+
+.vtaas-modal .vtaas-form-group input[type=datetime-local]:not([readonly]):focus,
+.vtaas-modal .vtaas-form-group input[type=number]:not([readonly]):focus,
+.vtaas-modal .vtaas-form-group input[type=password]:not([readonly]):focus,
+.vtaas-modal .vtaas-form-group input[type=text]:not([readonly]):focus {
+    border-bottom: 1px solid #0094d2;
+    background-size: 100% 100%;
+}
+
+.vtaas-modal .vtaas-form-group input[type=text]:focus,
+.vtaas-modal .vtaas-form-group input[type=password]:focus,
+.vtaas-modal .vtaas-form-group input[type=number]:focus,
+.vtaas-modal .vtaas-form-group input[type=email]:focus,
+.vtaas-modal .vtaas-form-group input[type=url]:focus,
+.vtaas-modal .vtaas-form-group input[type=tel]:focus,
+.vtaas-modal .vtaas-form-group input[type=date]:focus {
+    outline: 0;
+}
+
+.vtaas-modal .vtaas-form-group .vtaas-select select {
+    /*-webkit-appearance: none;*/
+    margin: 0;
+    padding: 0;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    background: none;
+    height: 24px;
+    color: #000;
+    display: inline-block;
+    min-width: 60px;
+    border-bottom: 1px solid #9a9a9a;
+    background: linear-gradient(180deg,transparent 95%,#0094d2 0) no-repeat;
+    background-size: 0 100%;
+    transition: background-size .2s ease;
+    padding: 0 24px 0 6px;
+    cursor: pointer;
+    width: 100%;
+    z-index: 2;
+    position: relative;
+}
+
+.vtaas-modal .vtaas-form-group button {
+    line-height: 18px;
+}
+/*.vtaas-modal .vtaas-form-group .vtaas-select:after {
+    position: absolute;
+    content: "";
+    height: 10px;
+    width: 10px;
+    top: 7px;
+    right: 6px;
+    background-image: url("data:image/svg+xml;charset=utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2012%2012%22%3E%0A%20%20%20%20%3Cdefs%3E%0A%20%20%20%20%20%20%20%20%3Cstyle%3E.cls-1%7Bfill%3A%239a9a9a%3B%7D%3C%2Fstyle%3E%0A%20%20%20%20%3C%2Fdefs%3E%0A%20%20%20%20%3Ctitle%3ECaret%3C%2Ftitle%3E%0A%20%20%20%20%3Cpath%20class%3D%22cls-1%22%20d%3D%22M6%2C9L1.2%2C4.2a0.68%2C0.68%2C0%2C0%2C1%2C1-1L6%2C7.08%2C9.84%2C3.24a0.68%2C0.68%2C0%2C1%2C1%2C1%2C1Z%22%2F%3E%0A%3C%2Fsvg%3E%0A");
+    background-repeat: no-repeat;
+    background-size: contain;
+    vertical-align: middle;
+    margin: 0;
+}*/
+
+.vtaas-modal .vtaas-form-group textarea {
+    resize: vertical;
+    width: 100%;
+    background: #fff;
+    border: 1px solid #ccc;
+    color: #000;
+    border-radius: 3px;
+    padding: 0;
+}
+
+.vtaas-modal .vtaas-form-group span,
+.vtaas-modal .vtaas-form-group label {
+    display: inline-block;
+}
+
+.vtaas-modal-header {
+    padding: 0 0 10px 0;
+}
+
+.vtaas-modal-header .vtaas-modal-title {
+    margin: 0;
+    padding: 0;
+    font-weight: 200;
+    font-size: 22px;
+    letter-spacing: normal;
+    line-height: 24px;
+}
+
+.vtaas-modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    padding: 5px 0 0 0;
+}
+
+.vtaas-modal-footer .vtaas-btn {
+    margin: 0 0 0 12px;
+    border-color: #0079b8;
+    background-color: #0079b8;
+    color: #fff;
+    cursor: pointer;
+    display: inline-block;
+    border-radius: 3px;
+    border: 1px solid;
+    min-width: 0px;
+    max-width: 360px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    text-align: center;
+    text-transform: uppercase;
+    vertical-align: middle;
+    line-height: 36px;
+    letter-spacing: 1.44px;
+    font-size: 12px;
+    font-weight: 500;
+    height: 36px;
+    padding: 0 12px;
+}
+
+.vtaas-modal-footer .vtaas-btn:hover {
+    background-color: #004a70;
+    color: #e1f1f6;
+}
+
+.vtaas-modal-footer .vtaas-btn:active {
+    box-shadow: 0 1px 0 0 #0094d2 inset;
+}
+
+.vtaas-modal-footer .vtaas-btn svg {
+    width: 16px;
+    height: 16px;
+    vertical-align: middle;
+    fill: currentColor;
+    color: #fff;
+}
+
+.vtaasrecorder-dialog h2.vtaasrecorder-dialog-title {
+    padding-bottom:10px;
+    border-bottom: solid 1px #ccc;
+    margin-bottom:10px;
+    color:#333;
+}
+
+.vtaasrecorder-dialog ul {
+    list-style:none;
+    padding:0;
+}
+
+.vtaasrecorder-dialog li {
+    padding: 5px 0 5px 30px;
+    margin:0;
+}
+
+.vtaasrecorder-dialog li label {
+    display:inline-block;
+    width:100px;
+    color:#666
+}
+
+.vtaasrecorder-dialog li input,
+.vtaasrecorder-dialog li select,
+.vtaasrecorder-dialog li textarea {
+    display:inline-block;
+    font-size:16px;
+    border:1px solid #ccc;
+    border-radius:2px;
+    padding:5px
+}
+
+.vtaasrecorder-dialog li input,
+.vtaasrecorder-dialog li textarea {
+    width:250px;
+}
+
+/* Control panel */
+.vtaas-control-panel {
+    padding: 0;
+    border: 0;
+    min-width: 0;
+    background-color: transparent;
+}
+
+.vtaas-control-panel .vtaas-panel-container {
+    display: flex;
+    height: auto;
+    justify-content: center;
+    padding: 0;
+    border: 0;
+    background-color: transparent;
+}
+
+.vtaas-control-panel .vtaas-panel-button {
+    padding: 8px 8px;
+    background-color: rgba(17, 17, 17, 0.15);
+    border: 0;
+    outline: 0;
+}
+
+.vtaas-control-panel.vtaas-hover .vtaas-panel-button {
+    background-color: rgba(17, 17, 17);
+}
+
+.vtaas-control-panel .vtaas-panel-button.vtaas-panel-padder {
+    width: 10px;
+    padding-left: 0;
+    padding-right: 0;
+    cursor: move;
+}
+
+.vtaas-control-panel .vtaas-panel-button.vtaas-panel-padder:hover,
+.vtaas-control-panel.vtaas-hover .vtaas-panel-button.vtaas-panel-padder:hover {
+    background-color: rgba(17, 17, 17);
+}
+
+.vtaas-control-panel .vtaas-panel-button:hover,
+.vtaas-control-panel.vtaas-hover .vtaas-panel-button:hover {
+    background-color: rgb(74, 74, 74);
+}
+
+.vtaas-control-panel .vtaas-panel-button:active,
+.vtaas-control-panel.vtaas-hover .vtaas-panel-button:active {
+    background-color: rgb(112, 112, 112);
+}
+
+.vtaas-control-panel .vtaas-button-inner {
+    align-items: center;
+    display: flex;
+    flex-flow: column nowrap;
+    height: 100%;
+    position: relative;
+    width: 100%;
+}
+
+.vtaas-control-panel .vtaas-button-icon {
+    margin-bottom: 0;
+}
+
+.vtaas-control-panel .vtaas-button-icon svg {
+    height: 24px;
+    width: 24px;
+    fill: white;
+}
+
+.vtaas-control-panel .vtaas-button-title {
+    font-family: arial, sans-serif;
+    font-size: 14px;
+    color: white;
+    font-weight: normal;
+    height: 14px;
+    line-height: 14px;
+    text-align: center;
+    user-select: none;
+    white-space: nowrap;
+}
+
+/* Settings Dialog */
+.vtaas-settings-dialog {
+    width: 600px;
+}
+
+/* Screenshot Dialog */
+.vtaas-screenshot-dialog {
+    width: 550px;
+}
+
+.vtaas-screenshot-dialog .vtaas-modal-header {
+    margin-bottom: 20px;
+}
+.vtaas-screenshot-dialog .vtaas-screenshot-screen {
+    margin-left: 15px
+}
+
+/* VTaaS element selector  */
+.vtaas-modal.vtaas-element-selector {
+    display:none;
+    border: 2px solid #ff0000;
+    padding: 0px;
+    background-color: rgba(33,33,33,0.2);
+    position:fixed;
+    z-index:2147483647;
+    font-size: 14px;
+}
+
+.vtaas-modal.vtaas-selector-info {
+    display: block;
+    bottom: 2px;
+    left: 3px;
+    padding: 2px;
+    box-shadow: none;
+    font-size: 14px;
+}
+
+
+/* common */
+.vtaas-col-1 {
+    flex: 0 0 8.33%;
+    max-width: 8.33%;
+}
+
+.vtaas-col-2 {
+    flex: 0 0 16.66%;
+    max-width: 16.66%;
+}
+
+.vtaas-col-3 {
+    flex: 0 0 24.99%;
+    max-width: 24.99%;
+}
+
+.vtaas-col-4 {
+    flex: 0 0 33.32%;
+    max-width: 33.32%;
+}
+
+.vtaas-col-5 {
+    flex: 0 0 41.65%;
+    max-width: 41.65%;
+}
+
+.vtaas-col-6 {
+    flex: 0 0 49.98%;
+    max-width: 49.98%;
+}
+
+.vtaas-col-7 {
+    flex: 0 0 58.31%;
+    max-width: 58.31%;
+}
+
+.vtaas-col-8 {
+    flex: 0 0 66.64%;
+    max-width: 66.64%;
+}
+
+.vtaas-col-9 {
+    flex: 0 0 74.97%;
+    max-width: 74.97%;
+}
+
+.vtaas-col-10 {
+    flex: 0 0 83.3%;
+    max-width: 83.3%;
+}
+
+.vtaas-col-11 {
+    flex: 0 0 91.63%;
+    max-width: 91.63%;
+}
+
+.vtaas-col-12 {
+    flex: 0 0 100%;
+    max-width: 100%;
+}
+
+.vtaas-col-1,
+.vtaas-col-2,
+.vtaas-col-3,
+.vtaas-col-4,
+.vtaas-col-5,
+.vtaas-col-6,
+.vtaas-col-7,
+.vtaas-col-8,
+.vtaas-col-9,
+.vtaas-col-10,
+.vtaas-col-11,
+.vtaas-col-12 {
+    padding-right: 5px;
+    padding-left: 5px;
+    position: relative;
+    min-height: 1px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.vtaas-frame-dialog {
+    position:fixed;
+    z-index:2147483647;
+    /*bottom: 10px;
+    right: 10px;*/
+    background-color:rgba(0, 0, 0, 0.7);
+    border: 1px solid #ccc;
+    box-shadow: 2px 2px 10px #888888;
+}
+
+#vtaas-dialog-screenshot {
+    width: 600px;
+    height: 262px;
+}
+
+#vtaas-dialog-assertion {
+    width: 700px;
+    height: 460px;
+}
+
+#vtaas-dialog-execution {
+    width: 600px;
+    height: 262px;
+}
+
+#vtaas-dialog-text-resource {
+    width: 700px;
+    height: 460px;
+}
+
+#vtaas-dialog-replay-progress {
+    box-sizing: content-box;
+    width: 180px;
+    height: 4px;
+    bottom: 10px;
+    right: 10px;
+}
+
+#vtaas-dialog-notification {
+    box-sizing: content-box;
+    width: 300px;
+    height: 100px;
+    top: 10px;
+    right: 10px;
+    border: none;
+}
+
+#vtaas-dialog-configuration {
+    width: 600px;
+    height: 436px;
+}
+
+#vtaas-dialog-control-panel {
+    background-color: transparent;
+    box-shadow: 5px 5px 10px #888888;
+    border: none;
+    width: 500px;
+    height: 70px;
+    /* visibility: hidden; */
+    bottom: -1000px;
+}
+
+#vtaas-dialog-elementselectorpath {
+    box-sizing: content-box;
+    width: 1000px;
+    height: 25px;
+    bottom: 1px;
+    left: 1px;
+}

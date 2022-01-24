@@ -1,0 +1,5 @@
+.path-container {
+    display: inline-block;
+    white-space: nowrap;
+    overflow: visible;
+}

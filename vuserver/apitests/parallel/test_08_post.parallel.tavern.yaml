@@ -1,0 +1,53 @@
+---
+test_name: Post users
+
+includes:
+  - !include includes.yaml
+
+stages:
+  - name: Verify users API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/users/"
+      method: POST
+      json:
+        $ext:
+          function: utils:return_name
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+---
+test_name: Post users
+
+includes:
+  - !include includes.yaml
+
+stages:
+  - name: Verify users API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/users/"
+      method: POST
+      json:
+        $ext:
+          function: utils:return_name
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+---
+test_name: Get uievents_stat
+
+includes:
+  - !include includes.yaml
+
+stages:
+  - name: Verify uievents_stat API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/uievents_stat/5090/5095"
+      method: GET
+    response:
+      strict:
+        - json:off
+      status_code: 200

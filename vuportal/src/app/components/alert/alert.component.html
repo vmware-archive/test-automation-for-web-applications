@@ -1,0 +1,68 @@
+<!-- 
+	Copyright 2022 VMware, Inc.
+	SPDX-License-Identifier: Apache License 2.0
+-->
+
+<div *ngIf="isSuccess" class="alert alert-success">
+    <div class="alert-items">
+        <div class="alert-item static" role="alert">
+            <div class="alert-icon-wrapper">
+                <clr-icon class="alert-icon" shape="exclamation-circle"></clr-icon>
+            </div>
+            <span class="alert-text">
+                    {{alertMessage}}
+            </span>
+        </div>
+    </div>
+    <button type="button" class="close" aria-label="Close" (click)="resetActionStatus()">
+        <clr-icon aria-hidden="true" shape="close"></clr-icon>
+    </button>
+</div>
+
+<div *ngIf="isDanger" class="alert alert-danger">
+    <div class="alert-items">
+        <div class="alert-item static" role="alert">
+            <div class="alert-icon-wrapper">
+                <clr-icon class="alert-icon" shape="exclamation-circle"></clr-icon>
+            </div>
+            <span class="alert-text">
+                    {{alertMessage}}
+            </span>
+        </div>
+    </div>
+    <button type="button" class="close" aria-label="Close" (click)="resetActionStatus()">
+        <clr-icon aria-hidden="true" shape="close"></clr-icon>
+    </button>
+</div>
+
+<div *ngIf="isInfo" class="alert alert-info">
+    <div class="alert-items">
+        <div class="alert-item static" role="alert">
+            <div class="alert-icon-wrapper">
+                <clr-icon class="alert-icon" shape="exclamation-circle"></clr-icon>
+            </div>
+            <span class="alert-text">
+                    {{alertMessage}}
+            </span>
+        </div>
+    </div>
+    <button type="button" class="close" aria-label="Close" (click)="resetActionStatus()">
+        <clr-icon aria-hidden="true" shape="close"></clr-icon>
+    </button>
+</div>
+
+<div *ngIf="isWarning" class="alert alert-warning">
+    <div class="alert-items">
+        <div class="alert-item static" role="alert">
+            <div class="alert-icon-wrapper">
+                <clr-icon class="alert-icon" shape="exclamation-circle"></clr-icon>
+            </div>
+            <span class="alert-text">
+                    {{alertMessage}}
+            </span>
+        </div>
+    </div>
+    <button type="button" class="close" aria-label="Close" (click)="resetActionStatus()">
+        <clr-icon aria-hidden="true" shape="close"></clr-icon>
+    </button>
+</div>

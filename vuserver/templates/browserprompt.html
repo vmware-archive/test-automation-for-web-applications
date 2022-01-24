@@ -1,0 +1,33 @@
+<!-- 
+	Copyright 2022 VMware, Inc.
+	SPDX-License-Identifier: Apache License 2.0
+-->
+<html>
+<head>
+<script type="text/javascript">
+function disp_alert()
+{
+		alert("我是一个alert！")
+}
+function disp_confirm()
+{
+		var r = confirm("我是一个confirm！");
+		console.log('confirm: ', r);
+		var btn = document.getElementById("b2");
+		btn.value = r;
+}
+function disp_prompt()
+{
+		var r = prompt("我是一个prompt！");
+		console.log('prompt: ', r)
+		var btn = document.getElementById("b3");
+		btn.value = r;
+}
+</script>
+</head>
+<body>
+<input type="button" id="b1" onclick="disp_alert()" value="alert" />
+<input type="button" id="b2" onclick="disp_confirm()" value="confirm" />
+<input type="button" id="b3" onclick="disp_prompt()" value="prompt" />
+</body>
+</html>

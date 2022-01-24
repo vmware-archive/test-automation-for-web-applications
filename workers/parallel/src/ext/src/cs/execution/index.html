@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Parallel Extension</title>
+    <meta charset='utf-8'>
+    <link rel="stylesheet" type="text/css" href="/js/bootstrap/css/bootstrap.min.css" />
+    <link rel="stylesheet" type="text/css" href="/js/jquery-editable-select/jquery-editable-select.css" />
+    <link rel="stylesheet" type="text/css" href="style.css" />
+    <script src="/js/jquery3/jquery.min.js"></script>
+    <script src="/js/jquery-ui/jquery-ui.min.js"></script>
+    <script src="/js/bootstrap/js/bootstrap.min.js"></script>
+    <script src="/js/jquery-editable-select/jquery-editable-select.js"></script>
+    <script type="module" src="main.js"></script>
+  </head>
+    <body>
+        <div class="modal" id="executionModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Execute SSH Command</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-container">
+                        <div id="alertPlaceholder"></div>
+                        <form>
+                            <div class="form-group form-row align-items-center">
+                                <div class="col-4">
+                                    <label for="sshCommand">Command Name:</label>
+                                </div>
+                                <div class="col-8">
+                                    <select id="sshCommand" class="form-control" name="command">
+                                    </select>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">CANCEL</button>
+                        <button id="ok" type="button" class="btn btn-primary">OK</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

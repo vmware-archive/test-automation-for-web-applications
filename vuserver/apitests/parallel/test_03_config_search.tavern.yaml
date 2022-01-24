@@ -1,0 +1,90 @@
+---
+test_name: Post searchtext
+
+includes:
+  - !include includes.yaml
+
+stages:
+  - name: Verify searchtext API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/searchtext/"
+      method: POST
+      json:
+        scripts: '{SCRIPT_ID}'
+        key: 'i'
+    response:
+      strict:
+        - json:off    
+      status_code: 200
+
+---
+test_name: Post searchinput
+
+includes:
+  - !include includes.yaml
+
+stages:
+  - name: Verify searchinput API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/searchinput/"
+      method: POST
+      json:
+        scripts: '{SCRIPT_ID}'
+        key: 'i'
+    response:
+      strict:
+        - json:off    
+      status_code: 200
+
+---
+test_name: Post searchassert
+
+includes:
+  - !include includes.yaml
+
+stages:
+  - name: Verify searchassert API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/searchassert/"
+      method: POST
+      json:
+        scripts: '{SCRIPT_ID}'
+        key: 'i'
+    response:
+      strict:
+        - json:off    
+      status_code: 200
+
+---
+test_name: Post searchsshcommand
+
+includes:
+  - !include includes.yaml
+
+stages:
+  - name: Verify searchsshcommand API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/searchsshcommand/"
+      method: POST
+      json:
+        scripts: '{SCRIPT_ID}'
+    response:
+      strict:
+        - json:off    
+      status_code: 200
+
+---
+test_name: Get config_events
+
+includes:
+  - !include includes.yaml
+
+stages:
+  - name: Verify config_events API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/config_events/{SCRIPT_ID:s}"
+      method: GET
+    response:
+      strict:
+        - json:off    
+      status_code: 200

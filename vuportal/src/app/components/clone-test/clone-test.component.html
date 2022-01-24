@@ -1,0 +1,35 @@
+<!-- 
+	Copyright 2022 VMware, Inc.
+	SPDX-License-Identifier: Apache License 2.0
+-->
+
+<clr-modal [(clrModalOpen)]="isCloneTest" [clrModalSize]="'lg'">
+    <h3 class="modal-title">Clone Test</h3>
+    <div class="modal-body">
+        <form clrForm #cloneTestForm="ngForm">
+
+            <div class="clr-form-control clr-row">
+                <div class="clr-col-12 clr-col-md-8">
+                    <clr-input-container>
+                        <label class="clr-col-12 clr-col-md-3 testName" for="inputName">Test Name *</label>
+                        <input class="clr-col-12 clr-col-md-5 testName" clrInput type="text" size=45
+                            [(ngModel)]="cloneTest.name" (ngModelChange)=validateName()
+                            placeholder="Don't use char / in name" name="inputName" required>
+                        <clr-control-error>Test name is required!</clr-control-error>
+                    </clr-input-container>
+                </div>
+                <div *ngIf="!isValidationName" class="clr-col-4 clr-col-md-4" style="margin-top: 1.2rem;">
+                    <span style="color:red">Test Name have invalid char / </span>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline" (click)="cancel()">Cancel</button>
+                <button type="submit" class="btn btn-primary" [disabled]="!isValidationName || cloneTest.name ==''"
+                    (click)="clone();">Submit</button>
+            </div>
+        </form>
+
+
+    </div>
+</clr-modal>

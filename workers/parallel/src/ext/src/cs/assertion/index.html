@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Parallel Extension</title>
+    <meta charset='utf-8'>
+    <link rel="stylesheet" type="text/css" href="/js/bootstrap/css/bootstrap.min.css" />
+    <link rel="stylesheet" type="text/css" href="style.css" />
+    <script src="/js/jquery3/jquery.min.js" ></script>
+    <script src="/js/bootstrap/js/bootstrap.min.js" ></script>
+    <script type="module" src="main.js"></script>
+  </head>
+    <body>
+        <div class="modal" id="assertionModal" tabindex="-1" role="dialog">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="assertionModalTitle">Add Assertion</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-container">
+                        <form>
+                            <div class="form-group form-row align-items-center">
+                                <div class="col-3">
+                                    <label for="delayTime">Delay Time:</label>
+                                </div>
+                                <div class="col-2">
+                                    <input id="delayTime" name="delay" placeholder="" size="10" type="text" class="form-control">
+                                </div>
+                                <div class="col-2">
+                                    <span>ms</span>
+                                </div>
+                            </div>
+                            <div class="form-group form-row align-items-center">
+                                <div class="col-3">
+                                    <label for="assertionType">Type:</label>
+                                </div>
+                                <div class="col-4">
+                                    <select id="assertionType" class="form-control" name="type">
+                                        <!-- option value="value">value</option -->
+                                        <option value="text">Text</option>
+                                        <option value="displayed">Displayed</option>
+                                        <option value="enabled">Enabled</option>
+                                        <option value="selected">Selected</option>
+                                      </select>
+                                </div>
+                            </div>
+                            <div class="form-group form-row align-items-center">
+                                <div class="col-3">
+                                    <label for="assertElement">Element:</label>
+                                </div>
+                                <div class="col-8">
+                                    <div class="input-group">
+                                        <input id="assertElement" name="element" placeholder="" size="45" type="text" class="form-control">
+                                        <div class="input-group-append">
+                                            <button id="elementButton" class="btn btn-secondary" type="button">Select</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group form-row align-items-center">
+                                <div class="col-3">
+                                    <label for="assertionOperator">Operator:</label>
+                                </div>
+                                <div class="col-4">
+                                    <select id="assertionOperator" class="form-control" name="operator">
+                                        <option value="include">include</option>
+                                        <option value="notInclude">notInclude</option>
+                                        <option value="equal">equal</option>
+                                        <option value="notEqual">notEqual</option>
+                                        <option value="isAbove">isAbove</option>
+                                        <option value="isBelow">isBelow</option>
+                                        <option value="match">match</option>
+                                        <option value="notMatch">notMatch</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group form-row align-items-center">
+                                <div class="col-3">
+                                    <label for="expectedType">Expected value type:</label>
+                                </div>
+                                <div class="col-4">
+                                    <select id="expectedType" class="form-control" name="expectedType">
+                                        <option value="string">String</option>
+                                        <option value="boolean">Boolean</option>
+                                        <option value="resource">I18n text resource</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group form-row align-items-center">
+                                <div class="col-3">
+                                    <label for="expectedValue">Expected value:</label>
+                                </div>
+                                <div class="col-8">
+                                    <div id="expectedValueBooleanPanel">
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" name="expectedValueBoolean"
+                                                id="expectedValueBooleanTrue" value="true">
+                                            <label class="form-check-label" for="expectedValueBooleanTrue">True</label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" name="expectedValueBoolean"
+                                                id="expectedValueBooleanFalse" value="true">
+                                            <label class="form-check-label" for="expectedValueBooleanFalse">False</label>
+                                        </div>
+                                    </div>
+                                    <div id="expectedValueStringPanel">
+                                        <textarea id="expectedValueString" name="expected" class="form-control"></textarea>
+                                    </div>
+                                    <div id="expectedValueTextResourcePanel">
+                                        <div class="input-group">
+                                            <input id="expectedValueResource" name="expectedResource" placeholder="Text resource key"
+                                                    size="45" type="text" class="form-control">
+                                            <div class="input-group-append">
+                                                <button id="expectedResourceButton" class="btn btn-secondary" type="button">Resource</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">CANCEL</button>
+                        <button id="ok" type="button" class="btn btn-primary">OK</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

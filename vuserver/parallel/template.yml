@@ -1,0 +1,20 @@
+version: '1'
+services:
+  parallel:
+    image: {image}
+    network_mode: bridge
+    container_name: {container_name}
+    environment:
+      VNC_RESOLUTION: {VNC_RESOLUTION}
+      BROWSER_LOCALE: {BROWSER_LOCALE}
+      VNC_NAME: {VNC_NAME}
+      BROWSER_TYPE: {BROWSER_TYPE}
+      {proxy_tag}
+    ports:
+      - {port_tag}:6901
+    volumes:
+      - ./config:/ext/config
+    {add_hosts}
+    cap_add:
+      - SYS_ADMIN
+    shm_size: 1G

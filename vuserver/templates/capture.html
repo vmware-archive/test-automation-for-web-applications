@@ -1,0 +1,15 @@
+<!-- 
+	Copyright 2022 VMware, Inc.
+	SPDX-License-Identifier: Apache License 2.0
+-->
+{% extends "base.html" %}
+
+{% block title %}Capture-{{ cappure.captureid }}{% endblock %}
+{% block header %}
+<header class='testcases-page'>
+    <h1>{{ capture.capturetime }}</h1>
+</header>
+{% endblock %}
+{% block extra_body %}
+<img style='display:block; width:1600px;height:1200px;' id='base64image' src='{{ capture.content }}'/>
+{% endblock %}

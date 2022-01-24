@@ -1,0 +1,313 @@
+---
+test_name: Make sure tests api functions
+
+includes:
+  - !include includes.yaml
+
+stages:
+  - name: Verify tests post API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/tests/"
+      method: POST
+      json:
+        name: 'cov-test-0'
+        apptype: 'parallel'
+        user: 'zzhuo'
+        product: 'ESXi'
+        build : 'ob-123'
+        resolution: '1600x1200'
+        start_url: 'https://vms.eng.vmware.com/'
+        locales: '[]'
+    response:
+      strict:
+        - json:off
+      status_code: 200
+      save:
+        json:
+          newtest_uuid: testcase.uuid
+
+  - name: Verify tests get API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/tests/{newtest_uuid:s}"
+      method: GET
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+  - name: Verify all tests get API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/tests/"
+      method: GET
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+  - name: Verify parallel tests get API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/tests/parallel"
+      method: GET
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+  - name: Verify search tests post API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/search_tests"
+      method: POST
+      json:
+        ids: ["5087"]
+        uuids: ["7cd9f75a-b218-4c79-be31-0b018cfe6d38"]
+        user: 'zzhuo'
+    response:
+      strict:
+        - json:off
+      json:
+        message: 'success'
+      status_code: 200
+
+  - name: Verify tests/put API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/tests/{newtest_uuid}"
+      method: PUT
+      json:
+        name: cov-test-2
+        apptype: parallel
+        user: zzhuo
+        product: ESXi
+        build : ob-123456
+        resolution: '1600x1200'
+        start_url: 'https://vms.eng.vmware.com/'
+        locales: '[]'
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+  - name: Verify operate:start API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/operate/"
+      method: POST
+      json:
+        operation: "start"
+        tests: "['{newtest_uuid}']"
+    response:
+      strict:
+        - json:off
+      json:
+        message: 'success'
+      status_code: 200
+
+  - name: Verify connect API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/connect/"
+      method: POST
+      json:
+        uuid: "{CLIENT_UUID:s}"
+        role: "leader"
+        locale: "en_US"
+        testcase: "{newtest_uuid}"
+    response:
+      strict:
+        - json:off
+      json:
+        message: 'success'
+      status_code: 200
+      save:
+        json:
+          newclient_uuid: client.uuid
+
+  - name: Verify record open
+    request:
+      url: "{SERVER_ROOT:s}/parallel/record/"
+      method: POST
+      json:
+        client: '{newclient_uuid}'
+        action: "open"
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+  - name: Verify record mousedown
+    request:
+      url: "{SERVER_ROOT:s}/parallel/record/"
+      method: POST
+      json:
+        client: '{newclient_uuid}'
+        event: "19"
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+  - name: Verify record mouseup
+    request:
+      url: "{SERVER_ROOT:s}/parallel/record/"
+      method: POST
+      json:
+        client: '{newclient_uuid}'
+        event: "20"
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+  - name: Verify record keydown
+    request:
+      url: "{SERVER_ROOT:s}/parallel/record/"
+      method: POST
+      json:
+        client: '{newclient_uuid}'
+        event: "9"
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+  - name: Verify record keyup
+    request:
+      url: "{SERVER_ROOT:s}/parallel/record/"
+      method: POST
+      json:
+        client: '{newclient_uuid}'
+        event: "10"
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+  - name: Verify record input
+    request:
+      url: "{SERVER_ROOT:s}/parallel/record/"
+      method: POST
+      json:
+        client: '{newclient_uuid}'
+        event: "11"
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+  - name: Verify record browserprompt
+    request:
+      url: "{SERVER_ROOT:s}/parallel/record/"
+      method: POST
+      json:
+        client: '{newclient_uuid}'
+        event: "29"
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+  - name: Verify record type
+    request:
+      url: "{SERVER_ROOT:s}/parallel/record/"
+      method: POST
+      json:
+        client: '{newclient_uuid}'
+        event: "2"
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+  - name: Verify record mouseover
+    request:
+      url: "{SERVER_ROOT:s}/parallel/record/"
+      method: POST
+      json:
+        client: '{newclient_uuid}'
+        event: "24"
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+  - name: Verify record click
+    request:
+      url: "{SERVER_ROOT:s}/parallel/record/"
+      method: POST
+      json:
+        client: '{newclient_uuid}'
+        event: "1"
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+  - name: Verify record tabswitch
+    request:
+      url: "{SERVER_ROOT:s}/parallel/record/"
+      method: POST
+      json:
+        client: '{newclient_uuid}'
+        event: "33"
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+  - name: Verify record screenshot
+    request:
+      url: "{SERVER_ROOT:s}/parallel/record/"
+      method: POST
+      json:
+        client: '{newclient_uuid}'
+        action: "screenshot"
+        event: "19"
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+  - name: Verify record report_issue
+    request:
+      url: "{SERVER_ROOT:s}/parallel/record/"
+      method: POST
+      json:
+        client: '{newclient_uuid}'
+        action: "report_issue"
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+  - name: Verify capture API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/capture/"
+      method: POST
+      json:
+        captureid: !uuid
+        consoleid: "28225"
+        img: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABsAAAAbCAMAAAC6CgRnAAAAPFBMVEX///8AAAD9/f2CgoKAgIAAAAAAAAAAAABLS0sAAAAAAACqqqqqqqq6urpKSkpISEgAAAC7u7u5ubn////zbsMcAAAAE3RSTlMASv6rqwAWS5YMC7/AyZWVFcrJCYaKfAAAAHhJREFUeF590kkOgCAQRFEaFVGc+/53FYmbz6JqBbyQMFSYuoQuV+iTflnstI7ssLXRvMWRaEMs84e2uVckuZe6knL0hiSPObXhj6ChzoEkIolIIpKIO4joICAIeDd7QGIfCCjOKe9HEk8mnxpIAup/F31RPZP9fAG3IAyBSJe0igAAAABJRU5ErkJggg=="
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+  - name: Verify operate:stop API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/operate/"
+      method: POST
+      json:
+        operation: "stop"
+        tests: "['{newtest_uuid}']"
+    response:
+      strict:
+        - json:off
+      json:
+        message: 'success'
+      status_code: 200
+
+  - name: Verify tests/delete API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/tests/{newtest_uuid}"
+      method: DELETE
+    response:
+      strict:
+        - json:off
+      status_code: 200

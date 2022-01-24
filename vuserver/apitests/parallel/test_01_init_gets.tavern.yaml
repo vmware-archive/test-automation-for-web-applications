@@ -1,0 +1,73 @@
+---
+test_name: Get products
+
+includes:
+  - !include includes.yaml
+
+stages:
+  - name: Verify products API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/products/"
+      method: GET
+    response:
+      strict:
+        - json:off    
+      status_code: 200
+      json:
+        message: 'success'
+
+---
+test_name: POST products
+
+includes:
+  - !include includes.yaml
+
+stages:
+  - name: Verify products API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/products/"
+      method: POST
+      json:
+        name: "APITEST_Product_delete"
+        bu_name: "CPBU"
+        bug_product_name: "vTaaS"
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+---
+test_name: Get locales
+
+includes:
+  - !include includes.yaml
+
+stages:
+  - name: Verify locales API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/locales/"
+      method: GET
+    response:
+      strict:
+        - json:off    
+      status_code: 200
+      json:
+        message: 'success'
+
+---
+test_name: Get resolutions
+
+includes:
+  - !include includes.yaml
+
+stages:
+  - name: Verify resolutions API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/resolutions/"
+      method: GET
+    response:
+      strict:
+        - json:off    
+      status_code: 200
+      json:
+        message: 'success'

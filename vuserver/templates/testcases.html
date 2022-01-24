@@ -1,0 +1,35 @@
+<!-- 
+	Copyright 2022 VMware, Inc.
+	SPDX-License-Identifier: Apache License 2.0
+-->
+{% extends "base.html" %}
+
+{% block title %}G11n Test Service{% endblock %}
+{% block header %}
+<header class='testcases-page'>
+    <h1>G11n Test Service</h1>
+    <!-- {% if user.is_authenticated %}
+        <a href="/accounts/logout/">Logout</a>
+    {% endif %} -->
+</header>
+{% endblock %}
+{% block content %}
+
+<div id="nav-a">
+    <ul class="testcases">
+        {% for testcase in testcases %}
+            {% if testcase.status == 'Init' %}
+                <li class="notstarted"><a href="/testcase/{{ testcase.uuid }}">{{ testcase }}</a></li>
+            {% elif testcase.status == 'running' %}
+                <li class="running"><a href="/testcase/{{ testcase.uuid }}">{{ testcase }}</a></li>
+            {% else %}
+                <li class="finished"><a href="/testcase/{{ testcase.uuid }}">{{ testcase }}</a></li>
+            {% endif %}
+        {% empty %}
+            <p class="empty">No testcases defined. Maybe make some in the <a href="{% url 'admin:index' %}">admin</a>?</p>
+        {% endfor %}
+    </ul>
+</div>
+
+
+{% endblock %}

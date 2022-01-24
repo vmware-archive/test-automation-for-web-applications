@@ -1,0 +1,100 @@
+
+*, *::before, *::after {
+    box-sizing: inherit;
+}
+
+body {
+    background-color: transparent;
+    margin: 0;
+}
+
+/* Control panel */
+.vtaas-control-panel {
+    padding: 0;
+    border: 0;
+    min-width: 0;
+    background-color: transparent;
+    box-sizing: border-box;
+    color:black;
+    font-size: 24px;
+    font-family: Metropolis,"Avenir Next","Helvetica Neue",Arial,sans-serif;
+}
+
+.vtaas-control-panel .vtaas-panel-container {
+    display: inline-flex;
+    height: auto;
+    justify-content: center;
+    padding: 0;
+    border: 0;
+    background-color: transparent;
+}
+
+.vtaas-control-panel .vtaas-panel-button {
+    padding: 8px 8px;
+    background-color: rgba(17, 17, 17, 0.15);
+    border: 0;
+    outline: 0;
+}
+
+.vtaas-control-panel.vtaas-hover .vtaas-panel-button {
+    background-color: rgba(17, 17, 17);
+}
+
+.vtaas-control-panel .vtaas-panel-button.vtaas-panel-padder {
+    width: 10px;
+    padding-left: 0;
+    padding-right: 0;
+    cursor: move;
+}
+
+.vtaas-control-panel .vtaas-panel-button.vtaas-panel-padder:hover,
+.vtaas-control-panel .vtaas-panel-button.vtaas-button-on,
+.vtaas-control-panel.vtaas-hover .vtaas-panel-button.vtaas-panel-padder:hover {
+    background-color: rgba(17, 17, 17);
+}
+
+.vtaas-control-panel .vtaas-panel-button:hover,
+.vtaas-control-panel.vtaas-hover .vtaas-panel-button:hover {
+    background-color: rgb(74, 74, 74);
+}
+
+.vtaas-control-panel .vtaas-panel-button:active,
+.vtaas-control-panel.vtaas-hover .vtaas-panel-button:active {
+    background-color: rgb(112, 112, 112);
+}
+
+.vtaas-control-panel .vtaas-button-inner {
+    align-items: center;
+    display: flex;
+    flex-flow: column nowrap;
+    height: 100%;
+    position: relative;
+    width: 100%;
+}
+
+.vtaas-control-panel .vtaas-button-icon {
+    margin-bottom: 4px;
+}
+
+.vtaas-control-panel .vtaas-button-icon svg {
+    height: 24px;
+    width: 24px;
+    fill: white;
+}
+
+.vtaas-control-panel .vtaas-button-title {
+    font-family: arial, sans-serif;
+    font-size: 14px;
+    color: white;
+    font-weight: normal;
+    height: 14px;
+    line-height: 14px;
+    text-align: center;
+    user-select: none;
+    white-space: nowrap;
+}
+
+/* Settings Dialog */
+.vtaas-settings-dialog {
+    width: 600px;
+}

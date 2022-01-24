@@ -1,0 +1,17 @@
+<!-- 
+	Copyright 2022 VMware, Inc.
+	SPDX-License-Identifier: Apache License 2.0
+-->
+{% extends "base.html" %}
+
+{% block title %}Login{% endblock %}
+{% block header_text %}Login{% endblock %}
+
+{% block content %}
+    <form action="." method="POST">
+        {% csrf_token %}
+        {{ form }}
+        <button>Login</button>
+    </form>
+
+{% endblock %}

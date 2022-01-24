@@ -1,0 +1,138 @@
+<!-- 
+	Copyright 2022 VMware, Inc.
+	SPDX-License-Identifier: Apache License 2.0
+-->
+
+<div class="main-body-div" #divManageHistory>
+    <clr-main-container>
+
+        <clr-datagrid [(clrDgSelected)]="selectedTests" [clrDgRowSelection]="true" [clrDgLoading]="loading">
+            <clr-dg-action-bar class="report-action-bar">
+                <div>
+                    <vuportal-alert></vuportal-alert>
+                </div>
+                <div class="btn-group btn-group01">
+                    <div>
+                        <button class="btn btn-outline" (click)="addTest()">
+                            <clr-icon shape="add"></clr-icon> New
+                        </button>
+                    </div>
+                    <div>
+                        <button [disabled]="selectedTests.length!=1 || selectedTests[0].status=='running'" class="btn "
+                            (click)="deleteTest(selectedTests[0])">
+                            <clr-icon shape="close"></clr-icon> Delete
+                        </button>
+                    </div>
+                    <div>
+                    </div>
+                    <clr-dropdown>
+                        <button type="button" class="btn btn-outline" clrDropdownTrigger>
+                            <clr-icon shape="cog"></clr-icon>
+                            Action
+                            <clr-icon shape="caret down"></clr-icon>
+                        </button>
+                        <clr-dropdown-menu clrPosition="bottom-left" *clrIfOpen>
+                            <button [disabled]="selectedTests.length!=1 || selectedTests[0].status=='running'"
+                                class="btn btn-secondary" (click)="startTest(selectedTests[0])">START</button>
+                            <button [disabled]="selectedTests.length==0 || selectedTests[0].status!=='running'"
+                                class="btn " (click)="stopTest(selectedTests[0])">STOP</button>
+                            <button [disabled]="selectedTests.length!=1 || selectedTests[0].status=='running'"
+                                class="btn btn-secondary" (click)="cloneTest(selectedTests[0])">
+                                <clr-icon shape="eye"></clr-icon> CLONE
+                            </button>
+                            <button
+                                [disabled]="selectedTests.length!=1 || selectedTests[0].status=='running' || selectedTests[0].apptype != 'automation'"
+                                class="btn btn-secondary" (click)="viewReport(selectedTests[0])">
+                                <clr-icon shape="eye"></clr-icon> VIEW REPORT
+                            </button>
+                            <button [disabled]="selectedTests.length!=1 || selectedTests[0].status!='running'"
+                                class="btn btn-secondary" (click)="openConsoles(selectedTests[0])">OPEN
+                                CONSOLES</button>
+
+                        </clr-dropdown-menu>
+                    </clr-dropdown>
+                    <div>
+                        <button type="button" class="btn btn-secondary" (click)="refresh()">
+                            <clr-icon shape="refresh"></clr-icon>
+                            Refresh
+                        </button>
+                    </div>
+                </div>
+
+            </clr-dg-action-bar>
+            <clr-dg-column [clrDgField]="'id'">
+                <ng-container *clrDgHideableColumn="{hidden: false}">
+                    ID
+                </ng-container>
+            </clr-dg-column>
+            <clr-dg-column [clrDgField]="'name'">
+                <ng-container *clrDgHideableColumn="{hidden: false}">
+                    Name
+                </ng-container>
+            </clr-dg-column>
+            <clr-dg-column [clrDgField]="'apptype'">
+                <ng-container *clrDgHideableColumn="{hidden: false}">
+                    Type
+                </ng-container>
+            </clr-dg-column>
+            <clr-dg-column [clrDgField]="'product'">
+                <ng-container *clrDgHideableColumn="{hidden: false}">
+                    Product
+                </ng-container>
+            </clr-dg-column>
+            <clr-dg-column [clrDgField]="'status'">
+                <ng-container *clrDgHideableColumn="{hidden: false}">
+                    Status
+                </ng-container>
+            </clr-dg-column>
+            <clr-dg-column [clrDgField]="'build'">
+                <ng-container *clrDgHideableColumn="{hidden: false}">
+                    Build
+                </ng-container>
+            </clr-dg-column>
+            <clr-dg-column [clrDgField]="'createtime'">
+                <ng-container *clrDgHideableColumn="{hidden: false}">
+                    Create Time
+                </ng-container>
+            </clr-dg-column>
+            <clr-dg-column [clrDgField]="'lastruntime'">
+                <ng-container *clrDgHideableColumn="{hidden: false}">
+                    Last Run Time
+                </ng-container>
+            </clr-dg-column>
+            <clr-dg-column [clrDgField]="'user'">
+                <ng-container *clrDgHideableColumn="{hidden: false}">
+                    User
+                </ng-container>
+            </clr-dg-column>
+            
+
+            <clr-dg-row *clrDgItems="let test of testList" [clrDgItem]="test">
+                <clr-dg-cell class="testName">{{test?.id}}</clr-dg-cell>
+                <clr-dg-cell class="testName">{{test?.name}}</clr-dg-cell>
+                <clr-dg-cell class="testName">{{test?.apptype}}</clr-dg-cell>
+                <clr-dg-cell class="testName">{{test?.product}}</clr-dg-cell>
+                <clr-dg-cell class="testName">{{test?.status}}</clr-dg-cell>
+                <clr-dg-cell class="testName">{{test?.build}}</clr-dg-cell>
+                <clr-dg-cell class="testName">{{test?.createtime}}</clr-dg-cell>
+                <clr-dg-cell class="testName">{{test?.lastruntime}}</clr-dg-cell>
+                <clr-dg-cell class="testName">{{test?.user}}</clr-dg-cell>
+            </clr-dg-row>
+
+            <clr-dg-footer>
+                <clr-dg-pagination #pagination [clrDgPageSize]="50">
+                    <clr-dg-page-size [clrPageSizeOptions]="[10,20,50,100]">Items per page</clr-dg-page-size>
+                    {{pagination.firstItem + 1}} - {{pagination.lastItem + 1}}
+                    of {{pagination.totalItems}} items
+                </clr-dg-pagination>
+            </clr-dg-footer>
+        </clr-datagrid>
+    </clr-main-container>
+</div>
+
+<vuportal-add-test (add_test_conditioned)="addedTest($event)"></vuportal-add-test>
+<vuportal-delete-test (delete_test_conditioned)="deletedTest($event)"></vuportal-delete-test>
+<vuportal-start-test (start_test_conditioned)="startedTest($event)"></vuportal-start-test>
+<vuportal-stop-test (stop_test_conditioned)="stopedTest($event)"></vuportal-stop-test>
+<vuportal-clone-test (clone_test_conditioned)="clonedTest($event)"></vuportal-clone-test>
+<vuportal-view-report></vuportal-view-report>

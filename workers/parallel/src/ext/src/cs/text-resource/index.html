@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Parallel Extension</title>
+    <meta charset='utf-8'>
+    <link rel="stylesheet" type="text/css" href="/js/bootstrap/css/bootstrap.min.css" />
+    <link rel="stylesheet" type="text/css" href="/js/jsgrid/jsgrid.css" />
+    <link rel="stylesheet" type="text/css" href="/js/jsgrid/jsgrid-theme.css" />
+    <link rel="stylesheet" type="text/css" href="style.css" />
+    <script type="text/javascript" src="/js/jquery3/jquery.min.js" ></script>
+    <script type="text/javascript" src="/js/bootstrap/js/bootstrap.min.js" ></script>
+    <script type="text/javascript" src="/js/jsgrid/jsgrid.js"></script>
+    <script type="module" src="main.js"></script>
+  </head>
+    <body>
+        <div class="modal" id="modal" tabindex="-1" role="dialog">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="modalTitle">Choose Text Resource</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-container">
+                        <div id="textResourcesGrid"></div>
+                    </div>
+                    <div class="modal-footer">
+                        <button id="cancel" type="button" class="btn btn-secondary">CANCEL</button>
+                        <button id="ok" type="button" class="btn btn-primary">OK</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

@@ -1,0 +1,38 @@
+<!-- 
+	Copyright 2022 VMware, Inc.
+	SPDX-License-Identifier: Apache License 2.0
+-->
+
+<clr-main-container>
+  <clr-header class="header"> 
+      <div class="branding">
+          <a href="#" class="nav-link">
+              <span class="clr-icon clr-clarity-logo"></span>
+              <span class="title">Test Automation for Web Applications</span>
+          </a>
+      </div>
+
+      <div class="header-actions">
+          <clr-dropdown>
+              <button id="displayUserName" class="nav-text" clrDropdownTrigger>
+                  {{userName}}
+                  <clr-icon shape="caret down"></clr-icon>
+              </button>
+              <clr-dropdown-menu *clrIfOpen clrPosition="bottom-right">
+                  <a *ngIf="Logined" (click)="logout()" clrDropdownItem>Log out</a>
+              </clr-dropdown-menu>
+          </clr-dropdown>
+      </div>
+  </clr-header>
+
+
+<div class="content-container">
+  <vuportal-navigation></vuportal-navigation>
+  <div class="content-area">
+    <router-outlet></router-outlet>
+  </div>
+</div>
+
+<vuportal-footer></vuportal-footer>
+
+</clr-main-container>

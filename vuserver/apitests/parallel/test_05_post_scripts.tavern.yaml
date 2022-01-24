@@ -1,0 +1,393 @@
+---
+test_name: Get templates
+
+includes:
+  - !include includes.yaml
+
+stages:
+  - name: Verify get templates API
+    request:
+      url: "{SERVER_ROOT:s}/script/templates/"
+      method: GET
+    response:
+      strict:
+        - json:off
+      json:
+        message: 'success'
+
+---
+test_name: auto_regenerate_script
+
+includes:
+  - !include includes.yaml
+
+stages:
+  - name: auto_regenerate_script
+    request:
+      url: "{SERVER_ROOT:s}/script/auto_regenerate_script/"
+      method: PUT
+      json:
+        script_generate_utility_name: "management"
+        script_id: '{SCRIPT_ID:s}'
+        script_suite_uuid: '{SUITE_UUID:s}'
+    response:
+      strict:
+        - json:off
+      status_code: 200
+      json:
+        message: 'success'
+
+---
+test_name: auto_regenerate_script_v2
+
+includes:
+  - !include includes.yaml
+
+stages:
+  - name: auto_regenerate_script_v2
+    request:
+      url: "{SERVER_ROOT:s}/script/auto_regenerate_script/"
+      method: PUT
+      json:
+        script_generate_utility_name: "management"
+        script_id: '{SCRIPT_ID:s}'
+        script_suite_uuid: '{SUITE_UUID:s}'
+        script_template: "nodejs/vtaas-v2default"
+    response:
+      strict:
+        - json:off
+      status_code: 200
+      json:
+        message: 'success'
+
+---
+test_name: configscriptdetails
+
+includes:
+  - !include includes.yaml
+
+stages:
+  - name: configscriptdetails
+    request:
+      url: "{SERVER_ROOT:s}/script/configscriptdetails/"
+      method: POST
+      json:
+        ids: [5863]
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+---
+test_name: configurationuievents
+
+includes:
+  - !include includes.yaml
+
+stages:
+  - name: configurationuievents
+    request:
+      url: "{SERVER_ROOT:s}/script/configurationuievents/"
+      method: POST
+      json:
+        ids: [5863]
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+---
+test_name: generate_script
+
+includes:
+  - !include includes.yaml
+
+stages:
+  - name: generate_script
+    request:
+      url: "{SERVER_ROOT:s}/script/generate_script/"
+      method: POST
+      json:
+        script_generate_utility_name: "management"
+        script_generate_type: "create"
+        script_user: "zzhuo"
+        script_product_name: "ESXi"
+        script_test_id: "5087"
+        script_run_id: "1"
+        script_name: "script name"
+        script_description: "script description"
+    response:
+      strict:
+        - json:off
+      status_code: 200
+      json:
+        message: 'success'
+
+  - name: clone script
+    request:
+      url: "{SERVER_ROOT:s}/script/generate_script/"
+      method: POST
+      json:
+        script_generate_utility_name: "management"
+        script_generate_type: "create"
+        script_user: "zzhuo"
+        script_product_name: "ESXi"
+        script_test_id: "5091"
+        script_run_id: "0"
+        script_name: "script name"
+        script_description: !raw "Auto genereated by test[ScriptReferredDoNotRemoveStart]{\"script_test_id_referred\":5091,\"script_run_id_referred\":1}[ScriptReferredDoNotRemoveEnd]"
+    response:
+      strict:
+        - json:off
+      status_code: 200
+      json:
+        message: 'success'
+      save:
+        json:
+          cloned_scriptid: generated_scripts[0]
+
+  # - name: configurationuievents
+  #   request:
+  #     url: "{SERVER_ROOT:s}/script/configurationuievents/"
+  #     method: POST
+  #     json:
+  #       ids: [{cloned_scriptid}]
+  #   response:
+  #     strict:
+  #       - json:off
+  #     status_code: 200
+
+  - name: regenerate cloned script
+    request:
+      url: "{SERVER_ROOT:s}/script/generate_script/"
+      method: PUT
+      json:
+        script_id: '{cloned_scriptid}'
+        script_template: "nodejs/vtaas-v2default"
+    response:
+      strict:
+        - json:off
+      status_code: 200
+      json:
+        message: 'success'
+
+  - name: clone script2
+    request:
+      url: "{SERVER_ROOT:s}/script/generate_script/"
+      method: POST
+      json:
+        script_generate_utility_name: "management"
+        script_generate_type: "create"
+        script_user: "zzhuo"
+        script_product_name: "ESXi"
+        script_test_id: "5089"
+        script_run_id: "0"
+        script_name: "script name"
+        script_description: !raw "Auto genereated by test[ScriptReferredDoNotRemoveStart]{\"script_test_id_referred\":5091,\"script_run_id_referred\":1}[ScriptReferredDoNotRemoveEnd]"
+    response:
+      strict:
+        - json:off
+      status_code: 200
+      json:
+        message: 'success'
+      save:
+        json:
+          cloned_scriptid2: generated_scripts[0]
+
+  - name: generate_cloned_script_v2
+    request:
+      url: "{SERVER_ROOT:s}/script/generate_script/"
+      method: POST
+      json:
+        script_generate_utility_name: "management"
+        script_generate_type: "create"
+        script_user: "zzhuo"
+        script_product_name: "ESXi"
+        script_test_id: "5089"
+        script_run_id: "0"
+        script_name: "script name"
+        script_description: "script description"
+        script_template: "nodejs/vtaas-v2default"
+    response:
+      strict:
+        - json:off
+      status_code: 200
+      json:
+        message: 'success'
+
+
+  - name: generate_script_v1
+    request:
+      url: "{SERVER_ROOT:s}/script/generate_script/"
+      method: POST
+      json:
+        script_generate_utility_name: "management"
+        script_generate_type: "create"
+        script_user: "zzhuo"
+        script_product_name: "ESXi"
+        script_test_id: "5087"
+        script_run_id: "1"
+        script_name: "script name"
+        script_description: "script description"
+        script_template: ""
+    response:
+      strict:
+        - json:off
+      status_code: 200
+      json:
+        message: 'success'
+
+  - name: generate_script_v2
+    request:
+      url: "{SERVER_ROOT:s}/script/generate_script/"
+      method: POST
+      json:
+        script_generate_utility_name: "management"
+        script_generate_type: "create"
+        script_user: "zzhuo"
+        script_product_name: "ESXi"
+        script_test_id: "5087"
+        script_run_id: "1"
+        script_name: "script name"
+        script_description: "script description"
+        script_template: "nodejs/vtaas-v2default"
+    response:
+      strict:
+        - json:off
+      status_code: 200
+      json:
+        message: 'success'
+
+---
+test_name: To create script from suite
+
+includes:
+  - !include includes.yaml
+
+stages:
+  - name: To create script from suite
+    request:
+      url: "{SERVER_ROOT:s}/script/generate_script_bulk/"
+      method: POST
+      json:
+        script_suite_uuid: "{SUITE_UUID:s}"
+        script_user: "zzhuo"
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+---
+test_name: get_script_filter
+
+includes:
+  - !include includes.yaml
+
+stages:
+  - name: get_script_filter
+    request:
+      url: "{SERVER_ROOT:s}/script/get_script_filter/"
+      method: POST
+      json:
+        script_filter_utility_name: "management"
+        script_filter_range_from: 0
+        script_filter_range_size: 20
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+---
+test_name: get_script_list
+
+includes:
+  - !include includes.yaml
+
+stages:
+  - name: get_script_list
+    request:
+      url: "{SERVER_ROOT:s}/script/get_script_list/"
+      method: POST
+      json:
+        script_utility_name: "management"
+        script_ids: ["5863"]
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+---
+test_name: operate_script_rename
+
+includes:
+  - !include includes.yaml
+
+stages:
+  - name: operate_script_rename
+    request:
+      url: "{SERVER_ROOT:s}/script/operate_script/"
+      method: POST
+      json:
+        script_utility_name: "only_for_apitest"
+        script_operation_name: "rename"
+        script_user: "zzhuo"
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+---
+test_name: operate_script_download
+
+includes:
+  - !include includes.yaml
+
+stages:
+  - name: operate_script_download
+    request:
+      url: "{SERVER_ROOT:s}/script/operate_script/"
+      method: POST
+      json:
+        script_utility_name: "only_for_apitest"
+        script_operation_name: "download"
+        script_user: "zzhuo"
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+---
+test_name: generate_script_step
+
+includes:
+  - !include includes.yaml
+
+stages:
+  - name: generate_script_step
+    request:
+      url: "{SERVER_ROOT:s}/script/generate_script_step/"
+      method: POST
+      json:
+        script_utility_name": "management"
+        script_ids: ["5863"]
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+
+---
+test_name: get script detail
+
+includes:
+  - !include includes.yaml
+
+stages:
+  - name: get script detail
+    request:
+      url: "{SERVER_ROOT:s}/script/script/5863"
+      method: GET
+    response:
+      strict:
+        - json:off
+      status_code: 200

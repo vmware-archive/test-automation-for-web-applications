@@ -1,0 +1,41 @@
+
+body {
+    background: #f2f2f2;
+    margin: 0px;
+}
+
+.progress-container {
+    display:flex;
+    flex-direction: row;
+    margin: 2px 0;
+    width: 180px;
+    height:0;
+}
+
+.drag-bar {
+    border-left: 1px solid #d2cdcd;
+    border-right: 1px solid #d2cdcd;
+    margin: 4px 5px 4px 5px;
+    flex: 0 0 5px;
+    cursor: move;
+}
+
+#progressTable {
+    border-spacing: 0;
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0;
+    line-height: normal;
+}
+
+tr:first-child td, tr:first-child th {
+    border-top: none;
+}
+
+th {
+    width: 80px;
+}
+
+td.sn-column {
+    text-align: center;
+}

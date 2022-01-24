@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Parallel Extension</title>
+    <meta charset='utf-8'>
+    <link rel="stylesheet" type="text/css" href="/js/bootstrap/css/bootstrap.min.css" />
+    <link rel="stylesheet" type="text/css" href="style.css" />
+    <script src="/js/jquery3/jquery.min.js" ></script>
+    <script src="/js/bootstrap/js/bootstrap.min.js" ></script>
+    <script type="module" src="main.js"></script>
+  </head>
+    <body>
+        <div class="modal" id="configurationModal" tabindex="-1" role="dialog">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="configurationModalTitle">Settings</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-container">
+                        <form>
+                            <div class="form-group form-row align-items-center">
+                                <div class="col-3">
+                                    <label for="serverInput">Server:</label>
+                                </div>
+                                <div class="col-5">
+                                    <input id="serverInput" name="server" placeholder="" size="15" type="text" class="form-control">
+                                </div>
+                            </div>
+                            <div class="form-group form-row align-items-center">
+                                <div class="col-3">
+                                    <label for="portInput">Port:</label>
+                                </div>
+                                <div class="col-2">
+                                    <input id="portInput" name="port" placeholder="" size="10" type="text" class="form-control">
+                                </div>
+                            </div>
+                            <div class="form-group form-row align-items-center">
+                                <div class="col-3">
+                                    <label for="testcaseInput">Test case:</label>
+                                </div>
+                                <div class="col-9">
+                                    <input id="testcaseInput" name="testcase" placeholder="" size="40" type="text" class="form-control">
+                                </div>
+                            </div>
+                            <div class="form-group form-row align-items-center">
+                                <div class="col-3">
+                                    <label for="roleSelect">Role:</label>
+                                </div>
+                                <div class="col-3">
+                                    <select id="roleSelect" class="form-control" name="role">
+                                        <option value="leader">Leader</option>
+                                        <option value="worker">Worker</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group form-row align-items-center">
+                                <div class="col-3">
+                                    <label for="nonAsciiSelect">Default Non-ascii:</label>
+                                </div>
+                                <div class="col-8">
+                                    <select id="nonAsciiSelect" class="form-control" name="nonascii">
+                                        <option value="表ポあA中Œ鷗停B逍">表ポあA中Œ鷗停B逍</option>
+                                        <option value="测试工具维塔斯">测试工具维塔斯</option>
+                                        <option value="功懸繁體字總表">功懸繁體字總表</option>
+                                        <option value="株sいうえ おサシ園か゚アｱ１1ａa">株sいうえ おサシ園か゚アｱ１1ａa</option>
+                                        <option value="ㄱㄷㅑㅓ하 늘천따겨울연가">ㄱㄷㅑㅓ하 늘천따겨울연가</option>
+                                        <option value="АБВГДЕЖфхцчшщъыьэюяё">АБВГДЕЖфхцчшщъыьэюяё</option>
+                                        <option value="Češi udělali">Češi udělali</option>
+                                        <option value="اللغة abcالعربِية لغة جميلة."> اللغة abcالعربِية لغة جميلة.</option>
+                                        <option value="ằỰịÌỈỵỲỶđĐ₫Ử">ằỰịÌỈỵỲỶđĐ₫Ử</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group form-row align-items-center">
+                                <div class="col-3">
+                                    <label for="mouseoverInput">Mouseover wait:</label>
+                                </div>
+                                <div class="col-2">
+                                    <input id="mouseoverInput" name="mouseover" placeholder="" size="10" type="text" class="form-control">
+                                </div>
+                                <div class="col-2">
+                                    <span>Seconds</span>
+                                </div>
+                            </div>
+                            <div class="form-group form-row align-items-center">
+                                <div class="col-3">
+                                    <label for="replayStatusInput">Replay Status:</label>
+                                </div>
+                                <div class="form-check col-6">
+                                    <input class="form-check-input" type="checkbox" value="" id="replayStatusInput">
+                                    <label class="form-check-label" for="replayStatusInput">
+                                        Show parallel replay status
+                                    </label>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">CANCEL</button>
+                        <button id="ok" type="button" class="btn btn-primary">OK</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

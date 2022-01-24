@@ -1,0 +1,28 @@
+{
+  "name": "replay",
+  "version": "1.0.0",
+  "description": "",
+  "main": "",
+  "dependencies": {
+    "chai": "3.5.0",
+    "jimp": "0.16.1",
+    "jsdom": "16.4.x",
+    "jwebdriver": "2.3.x",
+    "mocha": "6.x.x",
+    "mocha-parallel-tests": "2.3.0",
+    "mochawesome-uirecorder": "1.5.22",
+    "resemblejs-node": "1.0.0",
+    "selenium-standalone": "6.15.x",
+    "chrome-remote-interface": "0.28.2",
+    "log-timestamp": "0.3.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "installdriver": "selenium-standalone install --drivers.firefox.baseURL=http://npm.taobao.org/mirrors/geckodriver --baseURL=http://npm.taobao.org/mirrors/selenium --drivers.chrome.baseURL=http://npm.taobao.org/mirrors/chromedriver --drivers.ie.baseURL=http://npm.taobao.org/mirrors/selenium",
+    "server": "selenium-standalone start",
+    "test": "mocha \"!(node_modules)/**/*.spec.js\" --reporter mochawesome-uirecorder --bail",
+    "singletest": "mocha --reporter mochawesome-uirecorder --bail",
+    "paralleltest": "mocha-parallel-tests \"!(node_modules)/**/*.spec.js\" --reporter mochawesome-uirecorder --max-parallel 5 --bail"
+  },
+  "author": ""
+}

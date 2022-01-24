@@ -1,0 +1,22 @@
+<!-- 
+	Copyright 2022 VMware, Inc.
+	SPDX-License-Identifier: Apache License 2.0
+-->
+
+<clr-modal [(clrModalOpen)]="isStartTest">
+    <h3 class="modal-title">Confirm to Start test</h3>
+    <div class="modal-body">
+        <form class="clr-form clr-form-compact" #accessibilityForm="ngForm">
+            <div #divConfirmVmOperations>
+                <label><b style="color:black">NOTE: Are you sure to Start test?</b></label>
+            </div>
+        </form>
+    </div>
+
+    <div class="modal-footer">
+        <button type="button" class="btn btn-outline" (click)="cancel()">Cancel</button>
+        <button type="button" class="btn btn-primary "
+            (click)="start()">Ok</button>
+        
+    </div>
+</clr-modal>
