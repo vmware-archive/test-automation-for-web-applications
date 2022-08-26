@@ -3,10 +3,9 @@
 
 from channels.auth import AuthMiddlewareStack
 from channels.routing import ProtocolTypeRouter, URLRouter
-from parallel import consumers
 from django.conf.urls import url
-from django.urls import path
 
+from parallel import consumers
 
 application = ProtocolTypeRouter({
     # Channels will do this for you automatically. It's included here as an example.

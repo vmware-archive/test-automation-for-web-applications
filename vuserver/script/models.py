@@ -1,9 +1,10 @@
 # Copyright 2022 VMware, Inc.
 # SPDX-License-Identifier: Apache License 2.0
 
-from django.db import models
-from datetime import datetime
 import uuid
+from datetime import datetime
+
+from django.db import models
 
 
 class Script(models.Model):

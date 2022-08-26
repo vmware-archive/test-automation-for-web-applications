@@ -1,4 +1,4 @@
-<!-- 
+<!--
 	Copyright 2022 VMware, Inc.
 	SPDX-License-Identifier: Apache License 2.0
 -->
@@ -13,7 +13,7 @@
                 </div>
                 <div class="btn-group btn-group01">
                     <div>
-                        <button class="btn btn-outline" (click)="addTest()">
+                        <button class="btn btn-outline" (click)="addCloneViewTest(true)">
                             <clr-icon shape="add"></clr-icon> New
                         </button>
                     </div>
@@ -32,20 +32,24 @@
                             <clr-icon shape="caret down"></clr-icon>
                         </button>
                         <clr-dropdown-menu clrPosition="bottom-left" *clrIfOpen>
-                            <button [disabled]="selectedTests.length!=1 || selectedTests[0].status=='running'"
+                            <button clrDropdownItem [disabled]="selectedTests.length!=1 || selectedTests[0].status=='running'"
                                 class="btn btn-secondary" (click)="startTest(selectedTests[0])">START</button>
-                            <button [disabled]="selectedTests.length==0 || selectedTests[0].status!=='running'"
+                            <button clrDropdownItem [disabled]="selectedTests.length==0 || selectedTests[0].status!=='running'"
                                 class="btn " (click)="stopTest(selectedTests[0])">STOP</button>
-                            <button [disabled]="selectedTests.length!=1 || selectedTests[0].status=='running'"
+                            <!-- <button clrDropdownItem [disabled]="selectedTests.length!=1 || selectedTests[0].status=='running'"
                                 class="btn btn-secondary" (click)="cloneTest(selectedTests[0])">
                                 <clr-icon shape="eye"></clr-icon> CLONE
+                            </button> -->
+                            <button clrDropdownItem [disabled]="selectedTests.length!=1 || selectedTests[0].status=='running'"
+                                class="btn btn-secondary" (click)="addCloneViewTest(false)">
+                                <clr-icon shape="eye"></clr-icon> VIEW/CLONE
                             </button>
-                            <button
-                                [disabled]="selectedTests.length!=1 || selectedTests[0].status=='running' || selectedTests[0].apptype != 'automation'"
+                            <button clrDropdownItem
+                                [disabled]="selectedTests.length!=1 || selectedTests[0].status=='running'"
                                 class="btn btn-secondary" (click)="viewReport(selectedTests[0])">
                                 <clr-icon shape="eye"></clr-icon> VIEW REPORT
                             </button>
-                            <button [disabled]="selectedTests.length!=1 || selectedTests[0].status!='running'"
+                            <button clrDropdownItem [disabled]="selectedTests.length!=1 || selectedTests[0].status!='running'"
                                 class="btn btn-secondary" (click)="openConsoles(selectedTests[0])">OPEN
                                 CONSOLES</button>
 
@@ -105,7 +109,7 @@
                     User
                 </ng-container>
             </clr-dg-column>
-            
+
 
             <clr-dg-row *clrDgItems="let test of testList" [clrDgItem]="test">
                 <clr-dg-cell class="testName">{{test?.id}}</clr-dg-cell>
@@ -130,7 +134,7 @@
     </clr-main-container>
 </div>
 
-<vuportal-add-test (add_test_conditioned)="addedTest($event)"></vuportal-add-test>
+<vuportal-add-clone-test (add_test_conditioned)="addedTest($event)" (view_clone_test_conditioned)="viewClonedTest($event)"></vuportal-add-clone-test>
 <vuportal-delete-test (delete_test_conditioned)="deletedTest($event)"></vuportal-delete-test>
 <vuportal-start-test (start_test_conditioned)="startedTest($event)"></vuportal-start-test>
 <vuportal-stop-test (stop_test_conditioned)="stopedTest($event)"></vuportal-stop-test>

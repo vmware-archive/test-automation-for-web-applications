@@ -52,7 +52,8 @@ export class ViewReportComponent implements OnInit {
                                     screenshots: testRunInfo[key].captures,
                                     script: testRunInfo[key].script,
                                     events: testRunInfo[key].events,
-                                    recordDate: testRunInfo[key].record_time
+                                    recordDate: testRunInfo[key].record_time,
+                                    video: testRunInfo[key].video
                                 });
                             }
                         } else {

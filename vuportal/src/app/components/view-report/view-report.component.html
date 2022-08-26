@@ -28,6 +28,11 @@
                     Screenshots
                 </ng-container>
             </clr-dg-column>
+            <clr-dg-column [clrDgField]="'video'" style="width: 240px;">
+                <ng-container *clrDgHideableColumn="{hidden: false}">
+                    Video
+                </ng-container>
+            </clr-dg-column>
             <clr-dg-column [clrDgField]="'script'" style="width: 240px;">
                 <ng-container *clrDgHideableColumn="{hidden: false}">
                     Download Script
@@ -48,6 +53,7 @@
                 <clr-dg-cell>{{report.testName}}</clr-dg-cell>
                 <clr-dg-cell>{{report.runId}}</clr-dg-cell>
                 <clr-dg-cell class="report-cell"><a href="{{report.screenshots}}" [title]="report.screenshots" target="_blank">{{report.screenshots}}</a></clr-dg-cell>
+                <clr-dg-cell class="report-cell"><a href="{{report.video}}" [title]="report.video" target="_blank">{{report.video}}</a></clr-dg-cell>
                 <clr-dg-cell class="report-cell"><a href="{{report.script}}" [title]='report.script' target="_blank">{{report.script}}</a></clr-dg-cell>
                 <clr-dg-cell class="report-cell"><a href="{{report.events}}" [title]='report.events' target="_blank">{{report.events}}</a></clr-dg-cell>
                 <clr-dg-cell>{{report.recordDate}}</clr-dg-cell>

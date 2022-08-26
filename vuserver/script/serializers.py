@@ -1,8 +1,9 @@
 # Copyright 2022 VMware, Inc.
 # SPDX-License-Identifier: Apache License 2.0
 
-from .models import Script
 from rest_framework import serializers
+
+from .models import Script
 
 
 class ScriptSerializer(serializers.ModelSerializer):

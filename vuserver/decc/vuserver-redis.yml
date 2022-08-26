@@ -1,0 +1,51 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tawa-vuserver-redis
+  labels:
+    app: tawa-vuserver-redis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tawa-vuserver-redis
+  template:
+    metadata:
+      labels:
+        app: tawa-vuserver-redis
+    spec:
+      containers:
+      - name: tawa-vuserver-redis
+        image: harbor-repo.vmware.com/vtaas_workers/redis:6
+        env:
+          - name: POD_IP
+            valueFrom:
+              fieldRef:
+                fieldPath: status.podIP
+        ports:
+        - containerPort: 6379
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "512m"
+          limits:
+            memory: "1024Mi"
+            cpu: "512m"
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: tawa-vuserver-redis
+# Optional: Avi supports Kubernetes' hostname annotaion that you could use if
+# the default DNS name (appname-nsname) doesn't suite your business need
+# The domain part of the host name should match the DECC cluster
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: vuserver-redis.ara.decc.vmware.com
+spec:
+  type: LoadBalancer
+  selector:
+    app: tawa-vuserver-redis
+  ports:
+    - port: 6379
+      targetPort: 6379

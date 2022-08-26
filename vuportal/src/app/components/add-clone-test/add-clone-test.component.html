@@ -1,0 +1,197 @@
+<!--
+	Copyright 2022 VMware, Inc.
+	SPDX-License-Identifier: Apache License 2.0
+-->
+
+<div #addCloneviewTest>
+    <clr-modal [(clrModalOpen)]="isAddCloneTest" [clrModalSize]="'lg'">
+        <h3 *ngIf="requestNewTest" class="modal-title">New</h3>
+        <h3 *ngIf="!requestNewTest" class="modal-title">View/Clone Test</h3>
+        <div class="modal-body">
+            <form clrForm #addTestForm="ngForm">
+                <div class="clr-form-control clr-row">
+                    <div class="clr-col-12 clr-col-md-12">
+                        <clr-radio-container clrInline>
+                            <label class="clr-col-3 clr-col-md-3">Type : </label>
+                            <clr-radio-wrapper>
+                                <input clrRadio type="radio" name="gridRadios2" id="checkrads_24" [(ngModel)]="testType"
+                                    value="parallel" (click)="selectTestType('parallel')" checked>
+                                <label for="checkrads_24">Parallel</label>
+                            </clr-radio-wrapper>
+                            <clr-radio-wrapper>
+                                <input type="radio" clrRadio name="gridRadios2" id="checkrads_26" [(ngModel)]="testType"
+                                    value="recording" (click)="selectTestType('recording')">
+                                <label for="checkrads_26">Recording</label>
+                            </clr-radio-wrapper>
+                        </clr-radio-container>
+                    </div>
+                </div>
+
+                <div class="clr-form-control clr-row">
+                    <div class="clr-col-12 clr-col-md-12">
+                        <clr-select-container>
+                            <label for="nameProduct">Product *</label>
+                            <select clrSelect [disabled]="!requestNewTest" [(ngModel)]="vtaasUserTest.product" name="nameProduct" id="nameProduct">
+                                <option *ngFor="let product of productList" [ngValue]="product" name="product">
+                                    {{product}}
+                                </option>
+                            </select>
+                        </clr-select-container>
+                    </div>
+                </div>
+
+                <div class="clr-form-control clr-row">
+                    <div class="clr-col-12 clr-col-md-12">
+                        <clr-input-container>
+                            <label for="inputName">Test Name *</label>
+                            <input clrInput type="text" size=45
+                                [(ngModel)]="vtaasUserTest.name" (ngModelChange)=validateName()
+                                placeholder="Don't use char / in name" name="inputName" required>
+                            <clr-control-error>Test name is required!</clr-control-error>
+                        </clr-input-container>
+                    </div>
+                    <!-- <div *ngIf="!isValidationName" class="clr-col-12 clr-col-md-3" style="margin-top: 1.2rem;">
+                        <span style="color:red">Test Name have invalid char / </span>
+                    </div> -->
+                </div>
+                <div *ngIf="!isValidationName" class="clr-form-control clr-row">
+                    <div class="clr-col-2 clr-col-md-2">
+                    </div>
+                    <div class="clr-col-10 clr-col-md-10">
+                        <span style="color:red">Test Name have invalid char / </span>
+                    </div>
+                </div>
+
+                <div *ngIf='testType === "parallel"' >
+                    <div class="clr-form-control clr-row">
+                        <div class="clr-col-12 clr-col-md-12">
+                            <clr-input-container>
+                                <label for="inputBuild">Build *</label>
+                                <input clrInput type="text" size=45
+                                    [(ngModel)]="vtaasUserTest.build" (ngModelChange)=validateBuild()
+                                    placeholder="Build Number like '8584427'" name="inputBuild" required>
+                                <clr-control-error>Build is required!</clr-control-error>
+                            </clr-input-container>
+                        </div>
+                    </div>
+                    <div *ngIf="!isValidationBuild" class="clr-form-control clr-row">
+                        <!-- <div *ngIf="!isValidationBuild" class="clr-col-4 clr-col-md-4" style="margin-top: 1.2rem;">
+                            <span style="color:red">The character "/" is not allowed</span>
+                        </div> -->
+                        <div class="clr-col-2 clr-col-md-2">
+                        </div>
+                        <div class="clr-col-10 clr-col-md-10">
+                            <span style="color:red">The character "/" is not allowed</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="clr-form-control clr-row">
+                    <div class="clr-col-12 clr-col-md-12">
+                        <clr-select-container>
+                            <label for="buName">Resolution *</label>
+                            <select clrSelect [(ngModel)]="vtaasUserTest.resolution" name="screenResolution"
+                                name="selectResolution" id="buName">
+                                <option *ngFor="let re of resolutionList" [ngValue]="re" name="optionResolution">
+                                    {{re}}
+                                </option>
+                            </select>
+                        </clr-select-container>
+                    </div>
+                </div>
+
+                <div class="clr-form-control clr-row">
+                    <div class="clr-col-12 clr-col-md-12">
+                        <clr-select-container>
+                            <label for="leader_locale">Locale</label>
+                            <select clrSelect [(ngModel)]="vtaasUserTest.leader_locale" name="leader_locale"
+                                name="selectleader_locale" id="leader_locale">
+                                <option *ngFor="let re of vtaasLanguages" [ngValue]="re" name="optionleader_locale">
+                                    {{re}}
+                                </option>
+                            </select>
+                        </clr-select-container>
+                    </div>
+                </div>
+
+                <div class="clr-form-control clr-row">
+                    <div class="clr-col-12 clr-col-md-12">
+                        <clr-input-container>
+                            <label for="inputURL">Start URL *</label>
+                            <input clrInput type="text" size="45" [(ngModel)]="vtaasUserTest.start_url"
+                                placeholder="Required! Like https://sjc-horizon.vmware.com" name="inputURL"
+                                id="inputURL" required>
+                            <clr-control-error>Leader Start url is required!</clr-control-error>
+                        </clr-input-container>
+                    </div>
+                </div>
+
+                <div *ngIf='testType === "parallel"' class="clr-form-control clr-row">
+                    <label class="clr-control-label clr-col-12 clr-col-md-3" for="inputURL">Worker Start URL(s) &
+                        Locale(s) *</label>
+                    <div class="clr-control-container clr-col-12 clr-col-md-9 worker-start-urls">
+                        <div class="clr-control-container clr-col-12 clr-col-md-9 worker-start-urls">
+                            <div class="clr-checkbox-wrapper">
+                                <input type="checkbox" id="checkbox_toggleAll" [(ngModel)]="toggleAll"
+                                    name="inputToggleAll" (ngModelChange)="toggleAllOnChange()">
+                                <label class="clr-control-label clr-col-12 clr-col-md-7" for="checkbox_toggleAll">Toggle
+                                    All Locales</label>
+                            </div>
+                        </div>
+
+                        <div class="clr-checkbox-wrapper" *ngFor="let language of vtaasLanguages; let i = index">
+                            <div class="clr-control-container clr-col-12 clr-col-md-2 worker-start-urls">
+                                <input type="checkbox" id="check_lang_{{language}}" name="check_lang_{{language}}"
+                                    [(ngModel)]="this[language]" [checked]="checkPreviousTaskLocales(language)"
+                                    (ngModelChange)="updateVtaasLanguages(language)">
+                                <label class="clr-control-label" for="check_lang_{{language}}">{{language}}</label>
+                            </div>
+                            <div class="clr-control-container clr-col-12 clr-col-md-7">
+                                <div class="clr-input-wrapper">
+                                    <input class="clr-input" type="text" size="45"
+                                        placeholder="Start Url of this locale, it is optional"
+                                        id="inputStartURL_{{language}}" name="inputStartURL_{{language}}"
+                                        (change)="updateVtaasLanguages(language)">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="clr-form-control clr-row">
+                    <div class="clr-col-12 clr-col-md-12">
+                        <clr-input-container>
+                            <label for="inputNDSMapping">DNS Mapping</label>
+                            <input clrInput type="text" size="45" [(ngModel)]="vtaasUserTest.add_host"
+                                placeholder="like 'host1:10.10.10.10,host2:20.20.20.20'" name="inputNDSMapping"
+                                id="inputNDSMapping">
+                        </clr-input-container>
+                    </div>
+                </div>
+
+                <div *ngIf='testType === "parallel"' class="clr-form-control clr-row">
+                    <div class="clr-col-12 clr-col-md-12">
+                        <clr-input-container>
+                            <label for="inputGlossary">Glossary</label>
+                            <input clrInput type="text" size="45" [(ngModel)]="vtaasUserTest.glossary"
+                                placeholder="Ignore Unlocalized Strings like 'Horizon,Mac'" name="inputGlossary"
+                                id="inputGlossary">
+                        </clr-input-container>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline" (click)="cancel()">Cancel</button>
+                    <button *ngIf="requestNewTest" type="submit" class="btn btn-primary"
+                        [disabled]="validateAllFields()" (click)="addParallelTest()">Add</button>
+                    <button *ngIf="!requestNewTest" type="submit" class="btn btn-primary"
+                        [disabled]="validateAllFields()" (click)="addParallelTest()">Clone</button>
+                </div>
+            </form>
+
+
+        </div>
+    </clr-modal>
+
+</div>

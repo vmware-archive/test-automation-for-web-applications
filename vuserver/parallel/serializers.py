@@ -1,8 +1,9 @@
 # Copyright 2022 VMware, Inc.
 # SPDX-License-Identifier: Apache License 2.0
 
-from .models import Client, Product, TestCase, UIEvent, Capture, Console
 from rest_framework import serializers
+
+from .models import Client, Product, TestCase, UIEvent, Capture, Console
 
 
 class ClientSerializer(serializers.ModelSerializer):
@@ -14,47 +15,69 @@ class ClientSerializer(serializers.ModelSerializer):
 class ProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
-        fields = ('id', 'name', 'bu_name', 'reported_issue_target', 'bug_product_name', 'str_supported_browsers',
+        fields = ('id', 'name', 'bu_name', 'reported_issue_target',
+                  'bug_product_name', 'str_supported_browsers',
                   'str_supported_features', 'hpqc_domain', 'hpqc_project')
 
 
 class TestCaseSerializer(serializers.ModelSerializer):
     product = serializers.CharField(source='product.name')
     max_event_retry = serializers.IntegerField(required=False)
-    createtime = serializers.DateTimeField(format="%Y-%m-%dT%H:%M:%S", required=False)
-    lastruntime = serializers.DateTimeField(format="%Y-%m-%dT%H:%M:%S", required=False)
+    createtime = serializers.DateTimeField(format="%Y-%m-%dT%H:%M:%S",
+                                           required=False)
+    lastruntime = serializers.DateTimeField(format="%Y-%m-%dT%H:%M:%S",
+                                            required=False)
 
     class Meta:
         model = TestCase
-        fields = ('id', 'name', 'apptype', 'softdeleted', 'uuid', 'product', 'browser', 'status', 'build', 'resolution',
-                  'locales', 'leader_locale', 'start_url', 'add_host', 'glossary', 'run_id', 'user', 'pool', 'max_event_retry',
-                  'accessibility_data', 'createtime', 'lastruntime', 'access_urllist')
+        fields = ('id', 'name', 'apptype', 'softdeleted', 'uuid', 'product',
+                  'browser', 'status', 'build', 'resolution', 'locales',
+                  'leader_locale', 'start_url', 'add_host', 'glossary',
+                  'run_id',
+                  'user', 'pool', 'max_event_retry', 'accessibility_data',
+                  'createtime', 'lastruntime', 'access_urllist')
 
 
 class UIEventSerializer(serializers.ModelSerializer):
-    product = serializers.CharField(source='testcase.product.name', required=False)
-    obj_value = serializers.CharField(trim_whitespace=False, required=False, allow_blank=True)
-    recordtime = serializers.DateTimeField(format="%Y-%m-%dT%H:%M:%S", required=False)
+    product = serializers.CharField(source='testcase.product.name',
+                                    required=False)
+    obj_value = serializers.CharField(trim_whitespace=False, required=False,
+                                      allow_blank=True)
+    recordtime = serializers.DateTimeField(format="%Y-%m-%dT%H:%M:%S",
+                                           required=False)
 
     class Meta:
         model = UIEvent
-        fields = ('id', 'testcase', 'testname', 'product', 'run_id', 'event', 'action', 'button', 'obj_text', 'obj_class',
-                  'obj_value', 'obj_x', 'obj_y', 'obj_top', 'obj_left', 'obj_right', 'obj_bottom', 'obj_selector', 'obj_id',
-                  'obj_xpath', 'obj_xpath2', 'obj_xpath3', 'obj_scrolltop', 'obj_scrollleft', 'platform', 'recordtime',
-                  'obj_assert', 'obj_parent', 'obj_brother', 'obj_child', 'verify_type', 'verify_value', 'obj_xpath4',
-                  'captureid')
+        fields = (
+            'id', 'testcase', 'testname', 'product', 'run_id', 'event',
+            'action',
+            'button', 'obj_text', 'obj_class',
+            'obj_value', 'obj_x', 'obj_y', 'obj_top', 'obj_left', 'obj_right',
+            'obj_bottom', 'obj_selector', 'obj_id',
+            'obj_xpath', 'obj_xpath2', 'obj_xpath3', 'obj_scrolltop',
+            'obj_scrollleft', 'platform', 'recordtime',
+            'obj_assert', 'obj_parent', 'obj_brother', 'obj_child',
+            'verify_type',
+            'verify_value', 'obj_xpath4',
+            'captureid')
         extra_kwargs = {"obj_x": {"trim_whitespace": False}}
 
 
 class UIEventConfigSerializer(serializers.ModelSerializer):
-    obj_value = serializers.CharField(trim_whitespace=False, required=False, allow_blank=True)
+    obj_value = serializers.CharField(trim_whitespace=False, required=False,
+                                      allow_blank=True)
 
     class Meta:
         model = UIEvent
-        fields = ('id', 'testname', 'run_id', 'event', 'action', 'button', 'obj_text', 'obj_class', 'obj_value', 'obj_x',
-                  'obj_y', 'obj_top', 'obj_left', 'obj_right', 'obj_bottom', 'obj_selector', 'obj_id', 'obj_xpath',
-                  'obj_xpath2', 'obj_xpath3', 'obj_xpath4', 'obj_scrolltop', 'obj_scrollleft', 'obj_assert', 'verify_type',
-                  'verify_value', 'replayconfig', 'replayoption', 'presleeptime', 'userxpath')
+        fields = (
+            'id', 'testname', 'run_id', 'event', 'action', 'button', 'obj_text',
+            'obj_class', 'obj_value', 'obj_x',
+            'obj_y', 'obj_top', 'obj_left', 'obj_right', 'obj_bottom',
+            'obj_selector', 'obj_id', 'obj_xpath',
+            'obj_xpath2', 'obj_xpath3', 'obj_xpath4', 'obj_scrolltop',
+            'obj_scrollleft', 'obj_assert', 'verify_type',
+            'verify_value', 'replayconfig', 'replayoption', 'presleeptime',
+            'userxpath')
 
 
 class UIEventOpenSerializer(serializers.ModelSerializer):
@@ -76,8 +99,11 @@ class UIEventDirectSerializer(serializers.ModelSerializer):
 class UIEventMousedownSerializer(serializers.ModelSerializer):
     class Meta:
         model = UIEvent
-        fields = ("id", "action", "obj_value", "button", "obj_x", "obj_y", "obj_selector", "obj_id", "obj_xpath", "obj_xpath2",
-                  "obj_xpath3", "obj_xpath4", "verify_value", "percentX", "percentY")
+        fields = (
+            "id", "action", "obj_value", "button", "obj_x", "obj_y",
+            "obj_selector",
+            "obj_id", "obj_xpath", "obj_xpath2",
+            "obj_xpath3", "obj_xpath4", "verify_value", "percentX", "percentY")
 
 
 class UIEventKeydownSerializer(serializers.ModelSerializer):
@@ -91,8 +117,10 @@ class UIEventKeydownSerializer(serializers.ModelSerializer):
 class UIEventTypeSerializer(serializers.ModelSerializer):
     class Meta:
         model = UIEvent
-        fields = ("id", "action", "obj_value", "obj_selector", "obj_id", "obj_xpath", "obj_xpath2", "obj_xpath3", "obj_xpath4",
-                  "verify_value")
+        fields = (
+            "id", "action", "obj_value", "obj_selector", "obj_id", "obj_xpath",
+            "obj_xpath2", "obj_xpath3", "obj_xpath4",
+            "verify_value")
 
 
 class UIEventScreenshotSerializer(serializers.ModelSerializer):
@@ -110,15 +138,20 @@ class UIEventElementScreenshotSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = UIEvent
-        fields = ('id', 'action', 'areatype', 'name', "obj_value", "obj_selector", "obj_id", "obj_xpath", "obj_xpath2",
-                  "obj_xpath3", "obj_xpath4", "verify_value")
+        fields = (
+            'id', 'action', 'areatype', 'name', "obj_value", "obj_selector",
+            "obj_id", "obj_xpath", "obj_xpath2",
+            "obj_xpath3", "obj_xpath4", "verify_value")
 
 
 class UIEventMouseoverSerializer(serializers.ModelSerializer):
     class Meta:
         model = UIEvent
-        fields = ("id", "action", "obj_value", "button", "obj_x", "obj_y", "obj_selector", "obj_id", "obj_xpath", "obj_xpath2",
-                  "obj_xpath3", "obj_xpath4", "verify_value", "percentX", "percentY")
+        fields = (
+            "id", "action", "obj_value", "button", "obj_x", "obj_y",
+            "obj_selector",
+            "obj_id", "obj_xpath", "obj_xpath2",
+            "obj_xpath3", "obj_xpath4", "verify_value", "percentX", "percentY")
 
 
 class UIEventSelectSerializer(serializers.ModelSerializer):
@@ -126,15 +159,19 @@ class UIEventSelectSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = UIEvent
-        fields = ("id", "action", "obj_value", "obj_selector", "obj_id", "obj_xpath", "obj_xpath2", "obj_xpath3", "obj_xpath4",
-                  "verify_value", "reference", "percentX", "percentY")
+        fields = (
+            "id", "action", "obj_value", "obj_selector", "obj_id", "obj_xpath",
+            "obj_xpath2", "obj_xpath3", "obj_xpath4",
+            "verify_value", "reference", "percentX", "percentY")
 
 
 class UIEventAssertSerializer(serializers.ModelSerializer):
     class Meta:
         model = UIEvent
-        fields = ("id", "action", "obj_value", "obj_selector", "obj_id", "obj_xpath", "obj_xpath2", "obj_xpath3", "obj_xpath4",
-                  "verify_value", "obj_assert")
+        fields = (
+            "id", "action", "obj_value", "obj_selector", "obj_id", "obj_xpath",
+            "obj_xpath2", "obj_xpath3", "obj_xpath4",
+            "verify_value", "obj_assert")
 
 
 class UIEventExecuteSerializer(serializers.ModelSerializer):
@@ -151,8 +188,10 @@ class UIEventExecuteSerializer(serializers.ModelSerializer):
 class UIEventAccessibilitySerializer(serializers.ModelSerializer):
     class Meta:
         model = UIEvent
-        fields = ("id", "action", "obj_value", "obj_selector", "obj_id", "obj_xpath", "obj_xpath2", "obj_xpath3", "obj_xpath4",
-                  "verify_value")
+        fields = (
+            "id", "action", "obj_value", "obj_selector", "obj_id", "obj_xpath",
+            "obj_xpath2", "obj_xpath3", "obj_xpath4",
+            "verify_value")
 
 
 class UIEventBrowserpromptSerializer(serializers.ModelSerializer):
@@ -171,7 +210,8 @@ class UIEventTabswitchSerializer(serializers.ModelSerializer):
 
 
 class CaptureSerializer(serializers.ModelSerializer):
-    capturetime = serializers.DateTimeField(format="%Y-%m-%dT%H:%M:%S", required=False)
+    capturetime = serializers.DateTimeField(format="%Y-%m-%dT%H:%M:%S",
+                                            required=False)
 
     class Meta:
         model = Capture
@@ -179,10 +219,14 @@ class CaptureSerializer(serializers.ModelSerializer):
 
 
 class ConsoleSerializer(serializers.ModelSerializer):
-    createtime = serializers.DateTimeField(format="%Y-%m-%dT%H:%M:%S", required=False)
-    runtime = serializers.DateTimeField(format="%Y-%m-%dT%H:%M:%S", required=False)
-    starttime = serializers.DateTimeField(format="%Y-%m-%dT%H:%M:%S", required=False)
-    stoptime = serializers.DateTimeField(format="%Y-%m-%dT%H:%M:%S", required=False)
+    createtime = serializers.DateTimeField(format="%Y-%m-%dT%H:%M:%S",
+                                           required=False)
+    runtime = serializers.DateTimeField(format="%Y-%m-%dT%H:%M:%S",
+                                        required=False)
+    starttime = serializers.DateTimeField(format="%Y-%m-%dT%H:%M:%S",
+                                          required=False)
+    stoptime = serializers.DateTimeField(format="%Y-%m-%dT%H:%M:%S",
+                                         required=False)
 
     class Meta:
         model = Console
@@ -193,15 +237,20 @@ class ConsoleSerializer(serializers.ModelSerializer):
             'vnc_protocol',
         ])
 
+
 class SimpleConsoleSerializer(serializers.ModelSerializer):
-    createtime = serializers.DateTimeField(format="%Y-%m-%dT%H:%M:%S", required=False)
-    runtime = serializers.DateTimeField(format="%Y-%m-%dT%H:%M:%S", required=False)
-    starttime = serializers.DateTimeField(format="%Y-%m-%dT%H:%M:%S", required=False)
-    stoptime = serializers.DateTimeField(format="%Y-%m-%dT%H:%M:%S", required=False)
+    createtime = serializers.DateTimeField(format="%Y-%m-%dT%H:%M:%S",
+                                           required=False)
+    runtime = serializers.DateTimeField(format="%Y-%m-%dT%H:%M:%S",
+                                        required=False)
+    starttime = serializers.DateTimeField(format="%Y-%m-%dT%H:%M:%S",
+                                          required=False)
+    stoptime = serializers.DateTimeField(format="%Y-%m-%dT%H:%M:%S",
+                                         required=False)
 
     class Meta:
         model = Console
         fields = ('uuid', 'appname', 'role', 'status',
-            'browser', 'locale', 'resolution',
-            'createtime', 'runtime', 'starttime', 'stoptime',
-            'report', 'vnc_host', 'vnc_port', 'vnc_protocol')
+                  'browser', 'locale', 'resolution',
+                  'createtime', 'runtime', 'starttime', 'stoptime',
+                  'report', 'vnc_host', 'vnc_port', 'vnc_protocol')

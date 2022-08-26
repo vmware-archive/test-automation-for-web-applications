@@ -1,0 +1,10 @@
+[flake8]
+extend-ignore = W292,W391,E126,W291,N805,E203,E231,E501,F405,F403,C901,E128,F401
+exclude = *migrations*,*.pyc,.git,__pycache__,*.conf,*.md,.idea, venv,vuportal, workers, virtualenv
+max-line-length=90
+max-complexity=14
+format=pylint
+show_source = True
+statistics = True
+count = True
+

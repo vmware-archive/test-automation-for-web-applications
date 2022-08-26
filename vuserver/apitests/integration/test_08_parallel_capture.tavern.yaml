@@ -1,0 +1,57 @@
+---
+test_name: Test Capture API
+
+includes:
+  - !include includes.yaml
+
+stages:
+  - name: Verify capture API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/capture/"
+      method: POST
+      json:
+        captureid: ""
+        consoleid: "28225"
+        img: ""
+    response:
+      strict:
+        - json:off
+      status_code: 200
+      json:
+        message: 'not valid'
+
+  - name: Verify capture API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/capture/"
+      method: POST
+      json:
+        captureid: !uuid
+        consoleid: "28225"
+        img: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABsAAAAbCAMAAAC6CgRnAAAAPFBMVEX///8AAAD9/f2CgoKAgIAAAAAAAAAAAABLS0sAAAAAAACqqqqqqqq6urpKSkpISEgAAAC7u7u5ubn////zbsMcAAAAE3RSTlMASv6rqwAWS5YMC7/AyZWVFcrJCYaKfAAAAHhJREFUeF590kkOgCAQRFEaFVGc+/53FYmbz6JqBbyQMFSYuoQuV+iTflnstI7ssLXRvMWRaEMs84e2uVckuZe6knL0hiSPObXhj6ChzoEkIolIIpKIO4joICAIeDd7QGIfCCjOKe9HEk8mnxpIAup/F31RPZP9fAG3IAyBSJe0igAAAABJRU5ErkJggg=="
+    response:
+      strict:
+        - json:off
+      status_code: 200
+      json:
+        message: 'success'
+
+
+---
+test_name: textresource search
+
+includes:
+  - !include includes.yaml
+
+stages:
+  - name: Verify textresource search API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/textresources/search/"
+      method: POST
+      json:
+        product: "vTaaS"
+        locale: ["zh_CN", "en_US"]
+        resultStyle: "locale-row"
+    response:
+      strict:
+        - json:off
+      status_code: 200

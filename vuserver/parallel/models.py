@@ -1,11 +1,12 @@
 # Copyright 2022 VMware, Inc.
 # SPDX-License-Identifier: Apache License 2.0
 
-import os
-from django.db import models
-from datetime import datetime, timedelta
 import uuid
+from datetime import datetime, timedelta
+
 from django.conf import settings
+from django.db import models
+
 
 #
 # Product/TestCase/UIEvent are shared tables;
@@ -52,10 +53,10 @@ class TestCase(models.Model):
     BROWSER_FIREFOX = u'Firefox'
     BROWSER = ((BROWSER_CHROME, u'Chrome'), (BROWSER_FIREFOX, u'Firefox'))
 
-    APPTYPE_AUTOMATION = u'automation'
+    APPTYPE_AUTOMATION = u'recording'
     APPTYPE_PARALLEL = u'parallel'
     APPTYPE_ACCESSIBILITY = u'accessibility'
-    APPTYPE = ((APPTYPE_AUTOMATION, u'automation'),
+    APPTYPE = ((APPTYPE_AUTOMATION, u'recording'),
                (APPTYPE_PARALLEL, u'parallel'),
                (APPTYPE_ACCESSIBILITY, u'accessibility'))
 
@@ -83,7 +84,7 @@ class TestCase(models.Model):
     pool = models.CharField(u'Pool Name', max_length=255, blank=True, default='')
 
     access_urllist = models.TextField(u'Accessibility URL List', blank=True, default='')
-    accessibility_data = models.TextField(u'Accessibility Data', blank=True, default='') # JSON format: {"waveTaskId": nnn}
+    accessibility_data = models.TextField(u'Accessibility Data', blank=True, default='')  # JSON format: {"waveTaskId": nnn}
     createtime = models.DateTimeField(u'Create Time', blank=True, default=datetime.now)
     lastruntime = models.DateTimeField(u'Last Run Time', blank=True, default=datetime.now)
 
@@ -93,7 +94,6 @@ class TestCase(models.Model):
     @property
     def build(self):
         return self.build_no
-
 
     @property
     def max_event_retry(self):
@@ -114,6 +114,7 @@ class TestCase(models.Model):
         verbose_name = u'TestCase'
         verbose_name_plural = u'TestCases'
         db_table = 'parallel_testcase'
+
 
 class UIEvent(models.Model):
     id = models.AutoField(u'ID', primary_key=True)
@@ -141,9 +142,9 @@ class UIEvent(models.Model):
     obj_scrollleft = models.CharField(u'Object Scroll Left', blank=True, max_length=16, default='')
     obj_assert = models.TextField(u'Object Assert Value', blank=True, default='')
     # information for special element
-    obj_parent =  models.CharField(u'Object Parent Info', blank=True, max_length=1024, default='')
-    obj_brother =  models.CharField(u'Object Brother Info', blank=True, max_length=1024, default='')
-    obj_child =  models.CharField(u'Object Child Info', blank=True, max_length=1024, default='')
+    obj_parent = models.CharField(u'Object Parent Info', blank=True, max_length=1024, default='')
+    obj_brother = models.CharField(u'Object Brother Info', blank=True, max_length=1024, default='')
+    obj_child = models.CharField(u'Object Child Info', blank=True, max_length=1024, default='')
     verify_type = models.CharField(u'Verify Type', blank=True, max_length=64, default='')
     verify_value = models.TextField(u'Verify Value', blank=True, default='')
     captureid = models.CharField(u'Capture ID', max_length=128, blank=True, default='')
@@ -177,34 +178,37 @@ class UIEvent(models.Model):
     @property
     def percentX(self):
         percentage_x = 0.10
-        if(len(self.obj_x)*len(self.obj_y)*len(self.obj_left)*len(self.obj_top)*len(self.obj_right)*len(self.obj_bottom)==0):
+        if len(self.obj_x) * len(self.obj_y) * len(self.obj_left) * len(
+                self.obj_top) * len(self.obj_right) * len(self.obj_bottom) == 0:
             return percentage_x
-        offset_x = round((float(self.obj_x)-float(self.obj_left)),3)
-        width = round((float(self.obj_right)-float(self.obj_left)),3)
-        if(offset_x * width > 0):
-            percentage_x = round(offset_x/width,3)
+        offset_x = round((float(self.obj_x) - float(self.obj_left)), 3)
+        width = round((float(self.obj_right) - float(self.obj_left)), 3)
+        if offset_x * width > 0:
+            percentage_x = round(offset_x / width, 3)
         else:
             percentage_x = 0.10
         return percentage_x
 
     @property
     def percentY(self):
-        percentage_y=0.10
-        if(len(self.obj_x)*len(self.obj_y)*len(self.obj_left)*len(self.obj_top)*len(self.obj_right)*len(self.obj_bottom)==0):
+        percentage_y = 0.10
+        if len(self.obj_x) * len(self.obj_y) * len(self.obj_left) * len(
+                self.obj_top) * len(self.obj_right) * len(self.obj_bottom) == 0:
             return percentage_y
-        offset_y=round((float(self.obj_y)-float(self.obj_top)),3)
-        height=round((float(self.obj_bottom)-float(self.obj_top)),3)
+        offset_y = round((float(self.obj_y) - float(self.obj_top)), 3)
+        height = round((float(self.obj_bottom) - float(self.obj_top)), 3)
 
-        if(offset_y * height > 0):
-            percentage_y = round(offset_y/height,3)
+        if offset_y * height > 0:
+            percentage_y = round(offset_y / height, 3)
         else:
-            percentage_y=0.10
+            percentage_y = 0.10
         return percentage_y
 
     class Meta:
         verbose_name = u'UIEvent'
         verbose_name_plural = u'UIEvents'
         db_table = 'parallel_uievent'
+
 
 class Client(models.Model):
     id = models.AutoField(u'ID', primary_key=True)
@@ -274,11 +278,17 @@ class Console(models.Model):
     params = models.TextField(u'Self Parameters', blank=True, default='')
     build_no = models.CharField(u'Build NO.', max_length=256, default='')
     createtime = models.DateTimeField(u'Create Time', blank=True, default=datetime.now)
-    runtime = models.DateTimeField(u'Run Time', blank=True, default=datetime.now) # for schedule
-    starttime = models.DateTimeField(u'Start Time', blank=True, default=datetime.now) # lastruntime of Replay
-    stoptime = models.DateTimeField(u'Stop Time', blank=True, default=datetime.now) # resource usage: starttime-stoptime
-    expiretime = models.DateTimeField(u'Expire Time', blank=True, default=datetime.now()+timedelta(days=90)) # report expire time
-    report_status = models.CharField(u'Report Status', max_length=256, blank=True, default='0')
+    runtime = models.DateTimeField(u'Run Time', blank=True,
+                                   default=datetime.now)  # for schedule
+    starttime = models.DateTimeField(u'Start Time', blank=True,
+                                     default=datetime.now)  # lastruntime of Replay
+    stoptime = models.DateTimeField(u'Stop Time', blank=True,
+                                    default=datetime.now)  # resource usage: starttime-stoptime
+    expiretime = models.DateTimeField(u'Expire Time', blank=True,
+                                      default=datetime.now() + timedelta(
+                                          days=90))  # report expire time
+    report_status = models.CharField(u'Report Status', max_length=256,
+                                     blank=True, default='0')
 
     def __str__(self):
         return str(self.id)
@@ -306,7 +316,7 @@ class Console(models.Model):
 
     @property
     def vnc_protocol(self):
-        return 'http'
+        return 'https'
 
     class Meta:
         verbose_name = u'Console'

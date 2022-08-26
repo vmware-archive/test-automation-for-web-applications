@@ -1,3 +1,0 @@
-pytest==6.2.3
-tavern==1.14.2
-pytest-html==2.1.1

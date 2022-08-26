@@ -1,18 +1,27 @@
 # Copyright 2022 VMware, Inc.
 # SPDX-License-Identifier: Apache License 2.0
-
+import logging
+import mimetypes
 import os
+import re
+
+import cv2
 import requests
 import json
 import base64
 
+from django.http import StreamingHttpResponse
+from wsgiref.util import FileWrapper
 from .models import TestCase, Capture, UIEvent
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
-
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.conf import settings
+import shutil
+from .serializers import CaptureSerializer
+
+logger = logging.getLogger('capture')
 
 
 class CaptureSaver(APIView):
@@ -48,8 +57,9 @@ class AutoCaptureUpload(APIView):
         return super(AutoCaptureUpload, self).dispatch(*args, **kwargs)
 
     def post(self, request):
-        if not settings.HTTP_SCREENSHOT_SERVER:
-            return Response({'message': 'HTTP_SCREENSHOT_SERVER not configured.'})
+        if not hasattr(settings, "HTTP_SCREENSHOT_SERVER"):
+            return Response(
+                {'message': 'HTTP_SCREENSHOT_SERVER not configured.'})
         current_testcase = None
         capture = None
         event = None
@@ -148,8 +158,16 @@ class AutoCaptureUpload(APIView):
 
             capture_raw_file_name = ''
             if capture.consoleid != '' and capture.capture == '':
-                capture_raw_file_name = capture.consoleid + '@' + current_testcase.uuid + '/' + str(event.id) + '.png'
-                capture_file_name = os.path.join(settings.PARALLEL_ROOT, capture_raw_file_name)
+                # capture_raw_file_name = capture.consoleid + '@' + current_testcase.uuid + '/' + str(event.id) + '.png'
+                # capture_file_name = os.path.join(settings.CONSOLES_ROOT, capture_raw_file_name)
+                capture_raw_file_dir = capture.consoleid + '@' + current_testcase.uuid
+                capture_raw_file_name = str(event.id) + '.png'
+                dir_path = os.path.join(settings.CONSOLES_ROOT,
+                                        capture_raw_file_dir)
+                capture_file_name = os.path.join(dir_path, capture_raw_file_name)
+                is_dir_exist = os.path.exists(dir_path)
+                if not is_dir_exist:
+                    os.makedirs(dir_path)
                 capture_image = capture.content
                 iStart = capture_image.find(',')
                 imgdata = base64.b64decode(capture_image[iStart + 1:])
@@ -254,12 +272,13 @@ class ShowTestCaptures(APIView):
 
         capture_ids = []
         events = UIEvent.objects.filter(testcase=current_testcase, run_id=runid).order_by('recordtime')
+        capture_events = {}
         for e in events:
             if e.captureid:
                 capture_ids += [
                     e.captureid,
                 ]
-
+                capture_events[e.captureid] = e.id
         if not capture_ids:
             return Response({'message': 'No capture found'})
         captures = Capture.objects.filter(captureid__in=capture_ids).order_by('id')
@@ -270,4 +289,196 @@ class ShowTestCaptures(APIView):
                     with open(image_path, 'rb') as f:
                         image_binary_data = f.read()
                         current_capture.content = 'data:image/png;base64,' + str(base64.b64encode(image_binary_data))[2:-1]
+
+        capdata = CaptureSerializer(captures, many=True).data
+        for c in capdata:
+            c['event'] = capture_events.get(c['captureid'], '')
         return render(request, "captures.html", {"captures": captures})
+
+
+def stream_video(request, testcase_id):
+    """
+    Respond with video files as streaming media
+    """
+    try:
+        current_testcase = TestCase.objects.get(id=testcase_id)
+        capture_raw_file_dir = current_testcase.uuid
+        dir_path = os.path.join(settings.VIDEOS_ROOT,
+                                capture_raw_file_dir)
+        video_path = os.path.join(dir_path, "out.mp4")
+    except TestCase.DoesNotExist:
+        return StreamingHttpResponse()
+    if not os.path.exists(video_path):
+        return StreamingHttpResponse()
+    range_header = request.META.get('HTTP_RANGE', '').strip()
+    range_re = re.compile(r'bytes\s*=\s*(?P<START>\d+)\s*-\s*(?P<END>\d*)',
+                          re.I)
+    range_match = range_re.match(range_header)
+    size = os.path.getsize(video_path)
+    content_type, encoding = mimetypes.guess_type(video_path)
+    content_type = content_type or 'application/octet-stream'
+    if range_match:
+        first_byte, last_byte = range_match.group('START'), range_match.group(
+            'END')
+        first_byte = int(first_byte) if first_byte else 0
+        last_byte = first_byte + 1024 * 1024 * 8
+        if last_byte >= size:
+            last_byte = size - 1
+        length = last_byte - first_byte + 1
+        resp = StreamingHttpResponse(
+            file_iterator(video_path, offset=first_byte, length=length),
+            status=206, content_type=content_type)
+        resp['Content-Type'] = 'video/mp4'
+        resp['Content-Length'] = str(length)
+        resp['Content-Range'] = 'bytes %s-%s/%s' % (first_byte, last_byte, size)
+    else:
+        resp = StreamingHttpResponse(FileWrapper(open(video_path, 'rb')),
+                                     content_type=content_type)
+        resp['Content-Type'] = 'video/mp4'
+        resp['Content-Length'] = str(size)
+    resp['Accept-Ranges'] = 'bytes'
+    return resp
+
+
+def file_iterator(file_name, chunk_size=8192, offset=0, length=None):
+    with open(file_name, "rb") as f:
+        f.seek(offset, os.SEEK_SET)
+        remaining = length
+        while True:
+            if remaining is None:
+                bytes_length = chunk_size
+            else:
+                bytes_length = min(remaining, chunk_size)
+            data = f.read(bytes_length)
+            if not data:
+                break
+            if remaining:
+                remaining -= len(data)
+            yield data
+
+
+class ShowTestVideo(APIView):
+    """
+    Show all captures for specific test.
+    """
+    def get_object(self, testcase_id):
+        try:
+            return TestCase.objects.get(id=testcase_id)
+        except TestCase.DoesNotExist:
+            return None
+
+    def get(self, request, testcase_id, runid):
+        current_testcase = self.get_object(testcase_id)
+        if not current_testcase:
+            return Response({'message': 'TestCase not exist.'})
+
+        if runid == '0' or runid == 0:
+            # VIU-3409: get earliest runid
+            all_events = UIEvent.objects.filter(testcase=current_testcase).order_by('run_id')
+            if not all_events:
+                return Response({'message': 'No capture found'})
+            runid = all_events[0].run_id
+
+        capture_ids = []
+        events = UIEvent.objects.filter(testcase=current_testcase, run_id=runid).order_by('recordtime')
+        capture_events = {}
+        capture_events_dict = {}
+        for e in events:
+            if e.captureid:
+                capture_ids += [
+                    e.captureid,
+                ]
+                capture_events[e.captureid] = e.id
+                capture_events_dict[e.captureid] = e
+        if not capture_ids:
+            return Response({'message': 'No capture found'})
+
+        captures = Capture.objects.filter(captureid__in=capture_ids).order_by('id')
+        capture_raw_file_dir = current_testcase.uuid
+        dir_path = os.path.join(settings.VIDEOS_ROOT,
+                                capture_raw_file_dir)
+        if os.path.exists(dir_path):
+            shutil.rmtree(dir_path)
+        os.makedirs(dir_path)
+        cur = 0
+        pic_size_dict = {}
+        for current_capture in captures:
+            cur += 1
+            capture_image_name = f'image{cur}.png'
+            capture_file_path = os.path.join(dir_path, capture_image_name)
+            if current_capture.screenshot.lower().find('.png') > 0:
+                image_path = os.path.join(settings.RECORD_SCREENSHOT_ROOT,
+                                          current_capture.screenshot)
+                if os.path.isfile(image_path):
+                    # Copy src to dst. (cp src dst)
+                    shutil.copy(image_path, capture_file_path)
+            else:
+                capture_image = current_capture.content
+                i_start = capture_image.find(',')
+                imgdata = base64.b64decode(capture_image[i_start + 1:])
+                with open(capture_file_path, 'wb') as f_screenshot:
+                    f_screenshot.write(imgdata)
+                    f_screenshot.close()
+            image_fs = cv2.imread(capture_file_path)
+            image_info = image_fs.shape
+            height = image_info[0]
+            width = image_info[1]
+            size_key = str(width) + "-" + str(height)
+            size_key_value = pic_size_dict.get(size_key)
+            if not size_key_value:
+                size_key_value = [capture_file_path]
+            else:
+                size_key_value.append(capture_file_path)
+            pic_size_dict.update({size_key: size_key_value})
+            if image_fs is None:
+                logger.info(str(capture_file_path) + " is error!")
+                continue
+            capture_event = capture_events_dict.get(current_capture.captureid)
+            if not capture_event.obj_top or not capture_event.obj_left or\
+                    not capture_event.obj_bottom:
+                continue
+            left = int(float(capture_event.obj_left))
+            top = int(float(capture_event.obj_top))
+            right = int(float(capture_event.obj_right))
+            bottom = int(float(capture_event.obj_bottom))
+            action = capture_event.action
+            cv2.rectangle(image_fs, (left, bottom), (right, top), (0, 250, 0),
+                          1)
+            cv2.putText(image_fs, action, (left, top),
+                        cv2.FONT_HERSHEY_COMPLEX_SMALL, 0.8, (0, 255, 0), 1)
+            cv2.imwrite(capture_file_path, image_fs)
+
+        max_key = max(pic_size_dict, key=lambda k: len(pic_size_dict[k]))
+        width, height = max_key.split("-")
+        pic_list = pic_size_dict.get(max_key)
+        pic_size = (int(width), int(height))
+        pic_list.sort(key=lambda x: int(re.split('image|.png', x)[1]))
+        capture_video_path = os.path.join(dir_path, f"{testcase_id}.mp4")
+        capture_video = cv2.VideoWriter(capture_video_path,
+                                        cv2.VideoWriter_fourcc(*'mp4v'), 1,
+                                        pic_size)
+        for i in range(len(pic_list)):
+            img = cv2.imread(pic_list[i])
+            capture_video.write(img)
+
+        capture_video.release()
+        cv2.destroyAllWindows()
+
+        os.chdir(dir_path)
+        os.system(f"ffmpeg -i {testcase_id}.mp4 -vcodec h264 out.mp4")
+        return render(request, "video.html", {"caseid": testcase_id})
+
+
+class TextResource(APIView):
+    """
+    Search Text Resource.
+    """
+    @csrf_exempt
+    def dispatch(self, *args, **kwargs):
+        return super(TextResource, self).dispatch(*args, **kwargs)
+
+    def post(self, request):
+        return Response({
+                'message': 'success',
+                'textResources': []
+        })

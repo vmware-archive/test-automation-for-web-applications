@@ -1,0 +1,59 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tawa-vuserver-app
+  labels:
+    app: tawa-vuserver-app
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: tawa-vuserver-app
+  template:
+    metadata:
+      labels:
+        app: tawa-vuserver-app
+    spec:
+      containers:
+      - name: tawa-vuserver-app
+        image: harbor-repo.vmware.com/vtaas_workers/vuserver:tawa
+        env:
+        - name: DJANGO_SETTINGS_MODULE
+          value: "vuserver.settings.decc"
+        - name: DEBUG
+          value: "True"
+        - name: REDIS_HOST
+          value: "vuserver-redis.ara.decc.vmware.com"
+        - name: POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        command: ["/bin/sh"]
+        args: ["-c", "python manage.py collectstatic --no-input && python manage.py migrate && gunicorn vuserver.wsgi -b 0.0.0.0:9100"]
+        ports:
+        - containerPort: 9100
+        resources:
+          requests:
+            memory: "1024Mi"
+            cpu: "1024m"
+          limits:
+            memory: "2048Mi"
+            cpu: "1024m"
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: tawa-vuserver-app
+# Optional: Avi supports Kubernetes' hostname annotaion that you could use if
+# the default DNS name (appname-nsname) doesn't suite your business need
+# The domain part of the host name should match the DECC cluster
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: vuserver.ara.decc.vmware.com
+spec:
+  type: LoadBalancer
+  selector:
+    app: tawa-vuserver-app
+  ports:
+    - port: 9100
+      targetPort: 9100

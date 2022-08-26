@@ -1,33 +1,34 @@
 # Copyright 2022 VMware, Inc.
 # SPDX-License-Identifier: Apache License 2.0
 
-import os
-import time
-import requests
-import json
-from datetime import datetime, timezone, timedelta
-import base64
+from datetime import datetime
 
-from .models import Product, TestCase, Client, Capture, UIEvent, Console
-from script.models import Script
-from .serializers import ProductSerializer, TestCaseSerializer, ClientSerializer, CaptureSerializer
-from .serializers import UIEventSerializer, UIEventConfigSerializer
-from script.serializers import ScriptSerializer
-
-from django.http import Http404
-from django.shortcuts import render
-from django.contrib.auth.decorators import login_required
-from django.db.models import Q, F, Count
-from django.db import transaction
 from django.contrib.auth.models import User
-from django.views.decorators.csrf import csrf_exempt
-
-from rest_framework.views import APIView
+from django.db.models import Count
 from rest_framework.response import Response
-from rest_framework import status
-from rest_framework.decorators import api_view
-from django.conf import settings
-from .consumers import send_ws_message, send_ws_status
+from rest_framework.views import APIView
+
+from .models import Product, TestCase, UIEvent
+from .serializers import ProductSerializer, TestCaseSerializer
+
+
+def get_formate_time(start_day):
+    """
+    Deal with request params to get formate time.
+    """
+    start_time = None
+    if not start_day:
+        is_valid_time = False
+    elif len(start_day) == 8:
+        is_valid_time = True
+        start_time = datetime.strptime(start_day, "%Y%m%d")
+    elif len(start_day) == 14:
+        is_valid_time = True
+        start_time = datetime.strptime(start_day, "%Y%m%d%H%M%S")
+    else:
+        is_valid_time = False
+
+    return is_valid_time, start_time
 
 
 class FullUsers(APIView):
@@ -38,38 +39,17 @@ class FullUsers(APIView):
         """
         Show all users during a period.
         """
-        isValidStartTime = False
-        isValidEndTime = False
 
-        if not start_day:
-            isValidStartTime = False
-        if not end_day:
-            isValidEndTime = False
-
-        if (len(start_day) == 8):
-            isValidStartTime = True
-            startTime = datetime.strptime(start_day, "%Y%m%d")
-        elif (len(start_day) == 14):
-            isValidStartTime = True
-            startTime = datetime.strptime(start_day, "%Y%m%d%H%M%S")
-        else:
-            isValidStartTime = False
-
-        if (len(end_day) == 8):
-            isValidEndTime = True
-            endTime = datetime.strptime(end_day, "%Y%m%d")
-        elif (len(end_day) == 14):
-            isValidEndTime = True
-            endTime = datetime.strptime(end_day, "%Y%m%d%H%M%S")
-        else:
-            isValidEndTime = False
+        is_valid_start_time, start_time = get_formate_time(start_day)
+        is_valid_end_time, end_time = get_formate_time(end_day)
 
         names = []
-        if (list_format == "user"):
-            if (isValidStartTime and isValidEndTime):
-                result_list = User.objects.filter(last_login__gte=startTime, last_login__lte=endTime).order_by('-id')
-            elif (isValidStartTime):
-                result_list = User.objects.filter(last_login__gte=startTime).order_by('-id')
+        if list_format == "user":
+            if is_valid_start_time and is_valid_end_time:
+                result_list = User.objects.filter(last_login__gte=start_time,
+                                                  last_login__lte=end_time).order_by('-id')
+            elif is_valid_start_time:
+                result_list = User.objects.filter(last_login__gte=start_time).order_by('-id')
             else:
                 result_list = User.objects.filter().order_by('-id')
             for u in result_list:
@@ -80,10 +60,11 @@ class FullUsers(APIView):
                 ]
             res = names
         else:
-            if (isValidStartTime and isValidEndTime):
-                result_list = User.objects.filter(last_login__gte=startTime, last_login__lte=endTime).order_by('-id')
-            elif (isValidStartTime):
-                result_list = User.objects.filter(last_login__gte=startTime).order_by('-id')
+            if is_valid_start_time and is_valid_end_time:
+                result_list = User.objects.filter(last_login__gte=start_time,
+                                                  last_login__lte=end_time).order_by('-id')
+            elif is_valid_start_time:
+                result_list = User.objects.filter(last_login__gte=start_time).order_by('-id')
             else:
                 result_list = User.objects.filter().order_by('-id')
             for u in result_list:
@@ -125,47 +106,26 @@ class FullTests(APIView):
         """
         Show all tests during a period.
         """
-        isValidStartTime = False
-        isValidEndTime = False
 
-        if not start_day:
-            isValidStartTime = False
-        if not end_day:
-            isValidEndTime = False
+        is_valid_start_time, start_time = get_formate_time(start_day)
+        is_valid_end_time, end_time = get_formate_time(end_day)
 
-        if (len(start_day) == 8):
-            isValidStartTime = True
-            startTime = datetime.strptime(start_day, "%Y%m%d")
-        elif (len(start_day) == 14):
-            isValidStartTime = True
-            startTime = datetime.strptime(start_day, "%Y%m%d%H%M%S")
-        else:
-            isValidStartTime = False
-
-        if (len(end_day) == 8):
-            isValidEndTime = True
-            endTime = datetime.strptime(end_day, "%Y%m%d")
-        elif (len(end_day) == 14):
-            isValidEndTime = True
-            endTime = datetime.strptime(end_day, "%Y%m%d%H%M%S")
-        else:
-            isValidEndTime = False
-
-        if (list_format == "test"):
-            if (isValidStartTime and isValidEndTime):
-                result_list = TestCase.objects.filter(createtime__gte=startTime, createtime__lte=endTime).order_by('-id')
-            elif (isValidStartTime):
-                result_list = TestCase.objects.filter(createtime__gte=startTime).order_by('-id')
+        if list_format == "test":
+            if is_valid_start_time and is_valid_end_time:
+                result_list = TestCase.objects.filter(createtime__gte=start_time,
+                                                      createtime__lte=end_time).order_by('-id')
+            elif is_valid_start_time:
+                result_list = TestCase.objects.filter(createtime__gte=start_time).order_by('-id')
             else:
                 result_list = TestCase.objects.filter().order_by('-id')
             res = TestCaseSerializer(result_list, many=True).data
-        elif (list_format == "product"):
-            if (isValidStartTime and isValidEndTime):
+        elif list_format == "product":
+            if is_valid_start_time and is_valid_end_time:
                 result_list = TestCase.objects.filter(
-                    createtime__gte=startTime,
-                    createtime__lte=endTime).values('product').annotate(ucount=Count('product')).order_by('-ucount')
-            elif (isValidStartTime):
-                result_list = TestCase.objects.filter(createtime__gte=startTime).values('product').annotate(
+                    createtime__gte=start_time,
+                    createtime__lte=end_time).values('product').annotate(ucount=Count('product')).order_by('-ucount')
+            elif is_valid_start_time:
+                result_list = TestCase.objects.filter(createtime__gte=start_time).values('product').annotate(
                     ucount=Count('product')).order_by('-ucount')
             else:
                 result_list = TestCase.objects.filter().values('product').annotate(ucount=Count('product')).order_by('-ucount')
@@ -187,13 +147,13 @@ class FullTests(APIView):
                 names += [[pn, u['ucount']]]
                 countTest += u['ucount']
             res = {"countProduct": len(names), "countTest": countTest, "details": names}
-        elif (list_format == "user"):
-            if (isValidStartTime and isValidEndTime):
+        elif list_format == "user":
+            if is_valid_start_time and is_valid_end_time:
                 result_list = TestCase.objects.filter(
-                    createtime__gte=startTime,
-                    createtime__lte=endTime).values('user').annotate(ucount=Count('user')).order_by('-ucount')
-            elif (isValidStartTime):
-                result_list = TestCase.objects.filter(createtime__gte=startTime).values('user').annotate(
+                    createtime__gte=start_time,
+                    createtime__lte=end_time).values('user').annotate(ucount=Count('user')).order_by('-ucount')
+            elif is_valid_start_time:
+                result_list = TestCase.objects.filter(createtime__gte=start_time).values('user').annotate(
                     ucount=Count('user')).order_by('-ucount')
             else:
                 result_list = TestCase.objects.filter().values('user').annotate(ucount=Count('user')).order_by('-ucount')
@@ -204,12 +164,12 @@ class FullTests(APIView):
                 countTest += u['ucount']
             res = {"countUser": len(names), "countTest": countTest, "details": names}
         else:
-            if (isValidStartTime and isValidEndTime):
-                query = TestCase.objects.filter(createtime__gte=startTime, createtime__lte=endTime)
+            if is_valid_start_time and is_valid_end_time:
+                query = TestCase.objects.filter(createtime__gte=start_time, createtime__lte=end_time)
                 result_list = query.values('user').annotate(ucount=Count('user')).order_by('-ucount')
                 result_listP = query.values('product').annotate(ucount=Count('product')).order_by('-ucount')
-            elif (isValidStartTime):
-                query = TestCase.objects.filter(createtime__gte=startTime)
+            elif is_valid_start_time:
+                query = TestCase.objects.filter(createtime__gte=start_time)
                 result_list = query.values('user').annotate(ucount=Count('user')).order_by('-ucount')
                 result_listP = query.values('product').annotate(ucount=Count('product')).order_by('-ucount')
             else:
@@ -254,37 +214,16 @@ class FullEvents(APIView):
         """
         Show all events during a period.
         """
-        isValidStartTime = False
-        isValidEndTime = False
 
-        if not start_day:
-            isValidStartTime = False
-        if not end_day:
-            isValidEndTime = False
-
-        if (len(start_day) == 8):
-            isValidStartTime = True
-            startTime = datetime.strptime(start_day, "%Y%m%d")
-        elif (len(start_day) == 14):
-            isValidStartTime = True
-            startTime = datetime.strptime(start_day, "%Y%m%d%H%M%S")
-        else:
-            isValidStartTime = False
-
-        if (len(end_day) == 8):
-            isValidEndTime = True
-            endTime = datetime.strptime(end_day, "%Y%m%d")
-        elif (len(end_day) == 14):
-            isValidEndTime = True
-            endTime = datetime.strptime(end_day, "%Y%m%d%H%M%S")
-        else:
-            isValidEndTime = False
+        is_valid_start_time, start_time = get_formate_time(start_day)
+        is_valid_end_time, end_time = get_formate_time(end_day)
 
         # Only support uievents usage, or there will be too many
-        if (isValidStartTime and isValidEndTime):
-            result_list = UIEvent.objects.filter(recordtime__gte=startTime, recordtime__lte=endTime).count()
-        elif (isValidStartTime):
-            result_list = UIEvent.objects.filter(recordtime__gte=startTime).count()
+        if is_valid_start_time and is_valid_end_time:
+            result_list = UIEvent.objects.filter(recordtime__gte=start_time,
+                                                 recordtime__lte=end_time).count()
+        elif is_valid_start_time:
+            result_list = UIEvent.objects.filter(recordtime__gte=start_time).count()
         else:
             result_list = UIEvent.objects.filter().count()
         res = result_list

@@ -1,43 +1,40 @@
 # Copyright 2022 VMware, Inc.
 # SPDX-License-Identifier: Apache License 2.0
 
+import json
+import logging
 import os
+import shutil
 import time
-import base64
-import requests
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework.decorators import api_view
-# from channels.asgi import get_channel_layer
-from django.http import Http404
-from django.views.decorators.csrf import csrf_exempt
+import zipfile
 
 from django.conf import settings
 from django.http import HttpResponse
-from .models import Script
-from parallel.models import TestCase, UIEvent
+from rest_framework.response import Response
+from rest_framework.views import APIView
+
+from parallel.serializers import *
 # from parallel.event import adjust_events
 from .serializers import *
-from parallel.serializers import *
-import json
-import shutil
-import zipfile
-import logging
-from drf_yasg import openapi
-from drf_yasg.utils import swagger_auto_schema
+
+# from channels.asgi import get_channel_layer
 logger = logging.getLogger('script')
 
 SPECIAL_KEYS = ['SHIFT', 'CONTROL', 'ALT']
-FUNCTION_KEYS = {'TAB':'TAB','ENTER':'ENTER','BACKSPACE':'BACK_SPACE','DELETE':'DELETE',
-                 'INSERT':'INSERT','HOME':'HOME','END':'END','PAGEDOWN':'PAGE_DOWN',
-                 'PAGEUP':'PAGE_UP','ESC':'ESC','ARROWLEFT':'ARROW_LEFT',
-                 'ARROWLEFT':'ARROW_LEFT','ARROWRIGHT':'ARROW_RIGHT','ARROWUP':'ARROW_UP',
-                 'ARROWDOWN':'ARROW_DOWN'}
+FUNCTION_KEYS = {'TAB': 'TAB', 'ENTER': 'ENTER', 'BACKSPACE': 'BACK_SPACE',
+                 'DELETE': 'DELETE',
+                 'INSERT': 'INSERT', 'HOME': 'HOME', 'END': 'END',
+                 'PAGEDOWN': 'PAGE_DOWN',
+                 'PAGEUP': 'PAGE_UP', 'ESC': 'ESC', 'ARROWLEFT': 'ARROW_LEFT',
+                 'ARROWRIGHT': 'ARROW_RIGHT', 'ARROWUP': 'ARROW_UP',
+                 'ARROWDOWN': 'ARROW_DOWN'}
+
 
 class Templates(APIView):
     """
     List all templates.
     """
+
     def get(self, request, **kwargs):
         script_templates = []
         default_template = settings.DEFAULT_TEMPLATE
@@ -50,13 +47,15 @@ class Templates(APIView):
                     if os.path.isdir(t_path):
                         script_templates += [f + '/' + t, ]
 
-        return Response({'message': 'success', 'templates': script_templates, 'default': default_template})
+        return Response({'message': 'success', 'templates': script_templates,
+                         'default': default_template})
 
 
 class ScriptDetail(APIView):
     """
     Get script details
     """
+
     def get_object(self, id):
         try:
             return Script.objects.get(id=id)
@@ -83,68 +82,74 @@ def getScriptEvents(testcase, run_id, template=''):
     uievents = UIEvent.objects.filter(testcase=testcase, run_id=run_id)
     for e in uievents:
         if e.action == 'open':
-            actionJson = UIEventOpenSerializer(e, many=False).data
+            action_json = UIEventOpenSerializer(e, many=False).data
         elif e.action == 'direct':
-            actionJson = UIEventDirectSerializer(e, many=False).data
+            action_json = UIEventDirectSerializer(e, many=False).data
         elif e.action == 'mousedown':
-            actionJson = UIEventMousedownSerializer(e, many=False).data
+            action_json = UIEventMousedownSerializer(e, many=False).data
         elif e.action == 'keydown':
             if e.obj_x.upper() in FUNCTION_KEYS:
-                e.obj_x = '{'+FUNCTION_KEYS[e.obj_x.upper()]+'}'
-            actionJson = UIEventKeydownSerializer(e, many=False).data
+                e.obj_x = '{' + FUNCTION_KEYS[e.obj_x.upper()] + '}'
+            action_json = UIEventKeydownSerializer(e, many=False).data
         elif e.action == 'keyup' and e.obj_x.upper() in SPECIAL_KEYS:
             if e.obj_x.upper() in FUNCTION_KEYS:
-                e.obj_x = '{'+FUNCTION_KEYS[e.obj_x.upper()]+'}'
-            actionJson = UIEventKeydownSerializer(e, many=False).data
+                e.obj_x = '{' + FUNCTION_KEYS[e.obj_x.upper()] + '}'
+            action_json = UIEventKeydownSerializer(e, many=False).data
         elif e.action == 'type':
-            actionJson = UIEventTypeSerializer(e, many=False).data
+            action_json = UIEventTypeSerializer(e, many=False).data
         elif e.action == 'screenshot':
             if e.obj_assert.find('element') > 0:
-                actionJson = UIEventElementScreenshotSerializer(e, many=False).data
+                action_json = UIEventElementScreenshotSerializer(e,
+                                                                 many=False).data
             else:
-                actionJson = UIEventScreenshotSerializer(e, many=False).data
+                action_json = UIEventScreenshotSerializer(e, many=False).data
         elif e.action == 'mouseover':
-            actionJson = UIEventMouseoverSerializer(e, many=False).data
+            action_json = UIEventMouseoverSerializer(e, many=False).data
         elif e.action == 'select' and (e.event in ['20', '2']):
-            actionJson = UIEventSelectSerializer(e, many=False).data
+            action_json = UIEventSelectSerializer(e, many=False).data
         elif e.action == 'assert':
-            actionJson = UIEventAssertSerializer(e, many=False).data
+            action_json = UIEventAssertSerializer(e, many=False).data
         elif e.action == 'execute':
-            actionJson = UIEventExecuteSerializer(e, many=False).data
+            action_json = UIEventExecuteSerializer(e, many=False).data
         elif e.action == 'accessibility':
-            actionJson = UIEventAccessibilitySerializer(e, many=False).data
+            action_json = UIEventAccessibilitySerializer(e, many=False).data
         elif e.action == 'browserprompt':
-            actionJson = UIEventBrowserpromptSerializer(e, many=False).data
+            action_json = UIEventBrowserpromptSerializer(e, many=False).data
         elif e.action == 'tabswitch':
-            actionJson = UIEventTabswitchSerializer(e, many=False).data
+            action_json = UIEventTabswitchSerializer(e, many=False).data
         else:
             continue
 
         # action mapping
         mapped_action = e.action
         if template:
-            mapped_action = settings.SCRIPT_TEMPLATES[template]['actions_mappings'].get(e.action, e.action)
-        actionJson['action'] = mapped_action
-        script_events += [actionJson, ]
+            mapped_action = settings.SCRIPT_TEMPLATES[template][
+                'actions_mappings'].get(e.action, e.action)
+        action_json['action'] = mapped_action
+        script_events += [action_json, ]
     return script_events
 
 
 def readFile(filename):
-    if(not os.path.exists(filename)):
+    if not os.path.exists(filename):
         return ''
-    with open(filename,'r+',encoding='utf-8') as f:
-        text=f.read()
+    with open(filename, 'r+', encoding='utf-8') as f:
+        text = f.read()
         f.close()
     return text
+
+
 def writeFile(filename, txt):
-    with open(filename,'w',encoding='utf-8') as f:
+    with open(filename, 'w', encoding='utf-8') as f:
         f.write(txt)
         f.close()
+
 
 def updateNewScriptFile(newscript, template, events_json=[]):
     result = {'newscript': newscript, 'message': 'success'}
     script_date = newscript.createtime.strftime('%Y%m%d')
-    script_folder = os.path.join(settings.SCRIPTS_ROOT, script_date, str(newscript.id))
+    script_folder = os.path.join(settings.SCRIPTS_ROOT, script_date,
+                                 str(newscript.id))
     os.makedirs(script_folder, exist_ok=True)
     template_path = os.path.join(settings.TEMPLATE_ROOT, template)
     # copy template
@@ -164,7 +169,7 @@ def updateNewScriptFile(newscript, template, events_json=[]):
         target_path = os.path.join(script_folder, 'script', p)
         logger.info('Copy package: {}, {}'.format(package_path, target_path))
         if os.path.isdir(package_path):
-            #copy packages
+            # copy packages
             if os.path.isdir(target_path):
                 shutil.rmtree(target_path)
             shutil.copytree(package_path, target_path)
@@ -181,14 +186,16 @@ def updateNewScriptFile(newscript, template, events_json=[]):
     if newscript.test_id > 0:
         real_test_id, real_run_id = get_script_ids(newscript)
         # generate replay spec
-        testcases = TestCase.objects.filter(id = real_test_id)
+        testcases = TestCase.objects.filter(id=real_test_id)
         if not len(testcases):
-            msg = 'Error TestCase: test_id/run_id: {0}/{1}'.format(real_test_id, real_run_id)
+            msg = 'Error TestCase: test_id/run_id: {0}/{1}'.format(real_test_id,
+                                                                   real_run_id)
             result['message'] = msg
             return result
-        all_events['events'] = getScriptEvents(testcases[0], real_run_id, template)
-            # actionString = json.dumps(actionJson, indent=4).replace('\n', '\n    ')
-            # eventText += '    eventData  = ' + actionString + ';\n    replay({0}, "{1}", eventData);\n'.format(e.id, mapped_action)
+        all_events['events'] = getScriptEvents(testcases[0], real_run_id,
+                                               template)
+        # actionString = json.dumps(actionJson, indent=4).replace('\n', '\n    ')
+        # eventText += '    eventData  = ' + actionString + ';\n    replay({0}, "{1}", eventData);\n'.format(e.id, mapped_action)
     elif events_json:
         event_index = 1
         for evt in events_json:
@@ -196,7 +203,8 @@ def updateNewScriptFile(newscript, template, events_json=[]):
             evt_action = evt.get('action', '')
             if not evt_action:
                 continue
-            mapped_action = settings.SCRIPT_TEMPLATES[template]['actions_mappings'].get(evt_action, evt_action)
+            mapped_action = settings.SCRIPT_TEMPLATES[template][
+                'actions_mappings'].get(evt_action, evt_action)
             evt['action'] = mapped_action
             evt['id'] = event_index
             all_events["events"] += [evt, ]
@@ -204,19 +212,23 @@ def updateNewScriptFile(newscript, template, events_json=[]):
             # eventText += '    eventData  = ' + actionString + ';\n    replay({0}, "{1}", eventData);\n'.format(evt.get('id', event_index), mapped_action)
             event_index += 1
     # script_content = script_content.replace('// REPLAY SPEC', eventText)
-    writeFile(os.path.join(script_folder, 'script', 'test.spec.js'), script_content)
+    writeFile(os.path.join(script_folder, 'script', 'test.spec.js'),
+              script_content)
     newscript.path = script_date + "/" + str(newscript.id)
     newscript.save()
 
-    actionsString = json.dumps(all_events, indent=4).replace('\n', '\n    ')
-    writeFile(os.path.join(script_folder, 'script', 'test.events.json'), actionsString)
+    actions_string = json.dumps(all_events, indent=4).replace('\n', '\n    ')
+    writeFile(os.path.join(script_folder, 'script', 'test.events.json'),
+              actions_string)
     result['newscript'] = newscript
     return result
+
 
 class GenerateScript(APIView):
     """
     Generate script
     """
+
     def get_testcase(self, id):
         try:
             return TestCase.objects.get(id=id)
@@ -224,7 +236,8 @@ class GenerateScript(APIView):
             return None
 
     def post(self, request, **kwargs):
-        template = request.data.get('script_template', settings.DEFAULT_TEMPLATE) # *
+        template = request.data.get('script_template',
+                                    settings.DEFAULT_TEMPLATE)  # *
         if template and (template in settings.SCRIPT_TEMPLATES):
             # generate new script
             script_test_id = request.data.get('test_id', 0)
@@ -239,10 +252,12 @@ class GenerateScript(APIView):
             if events_string:
                 try:
                     script_events = json.loads(events_string)
-                    if (not isinstance (script_events, list)):
-                        return Response({'message': 'Failed: script_events is not list.'})
+                    if not isinstance(script_events, list):
+                        return Response(
+                            {'message': 'Failed: script_events is not list.'})
                 except Exception:
-                    return Response({'message': 'Failed: events_string is not valid.'})
+                    return Response(
+                        {'message': 'Failed: events_string is not valid.'})
             elif current_testcase:
                 script_user = current_testcase.user
                 script_name = current_testcase.name
@@ -251,14 +266,14 @@ class GenerateScript(APIView):
                 return Response({'message': 'Failed: bad parameter.'})
 
             newscript = Script.objects.create(
-                test_id = int(script_test_id),
-                run_id = int(script_run_id),
-                user = script_user,
-                product = script_product,
-                name = script_name,
-                description = "",
-                template = template,
-                events = events_string
+                test_id=int(script_test_id),
+                run_id=int(script_run_id),
+                user=script_user,
+                product=script_product,
+                name=script_name,
+                description="",
+                template=template,
+                events=events_string
             )
             result = updateNewScriptFile(newscript, template, script_events)
             if result['message'] != 'success':
@@ -274,6 +289,7 @@ class Download(APIView):
     """
     Download script.
     """
+
     def get_object(self, id):
         try:
             return Script.objects.get(id=id)
@@ -302,14 +318,17 @@ class Download(APIView):
 
         script_date = script.createtime.strftime('%Y%m%d')
         current_date = time.strftime('%Y%m%d')
-        script_folder = os.path.join(settings.SCRIPTS_ROOT, script_date, str(script.id))
-        zipfile_name = os.path.join(settings.DOWNLOADS_ROOT, '{}-script-{}.zip'.format(current_date, id))
+        script_folder = os.path.join(settings.SCRIPTS_ROOT, script_date,
+                                     str(script.id))
+        zipfile_name = os.path.join(settings.DOWNLOADS_ROOT,
+                                    '{}-script-{}.zip'.format(current_date, id))
         self.zip_folder(script_folder, zipfile_name)
         response = HttpResponse(open(zipfile_name, 'rb'))
         response['Content-Type'] = 'application/octet-stream'
-        response['Content-Disposition'] = 'attachment;filename="{}-script-{}.zip"'.format(current_date, id)
+        response[
+            'Content-Disposition'] = 'attachment;filename="{}-script-{}.zip"'.format(
+            current_date, id)
         return response
-
 
 # class ScriptSteps(APIView):
 #     """

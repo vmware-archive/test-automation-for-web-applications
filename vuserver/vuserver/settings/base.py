@@ -3,7 +3,6 @@
 
 
 import os
-import sys
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -17,7 +16,7 @@ SECRET_KEY = 'rp6%@_u*)l#*tqz2k++b1pmb6_&xq-u*h(g*&o8)dw$n%4bv1%'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-APPEND_SLASH=True
+APPEND_SLASH = True
 # 20M
 DATA_UPLOAD_MAX_MEMORY_SIZE = 20971520
 
@@ -139,17 +138,19 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 redis_host = os.environ.get('REDIS_HOST', '127.0.0.1')
-
+redis_port = os.environ.get('REDIS_PORT', 6379)
+redis_password = os.environ.get('REDIS_PASSWORD', '')
+redis_db = os.environ.get('REDIS_DB', '0')
 
 ASGI_APPLICATION = "vuserver.routing.application"
 # Channel layer definitions
-# http://channels.readthedocs.org/en/latest/deploying.html#setting-up-a-channel-backend
 CHANNEL_LAYERS = {
     "default": {
-        # This example app uses the Redis channel layer implementation asgi_redis
+        # This example app uses the Redis channel layer implementation
+        # asgi_redis
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
-            "hosts": [(redis_host, 6379)],
+            "hosts": [f"redis://:{redis_password}@{redis_host}:{redis_port}/{redis_db}"],
         },
     },
 }
@@ -157,46 +158,46 @@ CHANNEL_LAYERS = {
 # Password validation
 # https://docs.djangoproject.com/en/dev/ref/settings/#auth-password-validators
 # Deliberately turned off for this example.
-AUTH_PASSWORD_VALIDATORS = []
+# AUTH_PASSWORD_VALIDATORS = []
 
 LOGIN_REDIRECT_URL = "/"
 LOGOUT_REDIRECT_URL = "/"
 
 # %T @ https://wiki.eng.vmware.com/Build/L10NSupport
 LOCALE_MAP = {
-    'cs':    'cs_CZ',
-    'cs-CZ': 'cs_CZ', # *
-    'da':    'da_DK',
-    'da-DK': 'da_DK', # *
-    'de':    'de_DE',
-    'de-DE': 'de_DE', # *
-    'en':    'en_US',
-    'en-US': 'en_US', # *
-    'en-GB': 'en_GB', # *
-    'es':    'es_ES',
-    'es-ES': 'es_ES', # *
-    'fr':    'fr_FR',
-    'fr-FR': 'fr_FR', # *
-    'it':    'it_IT',
-    'it-IT': 'it_IT', # *
-    'ja':    'ja_JP', # *
+    'cs': 'cs_CZ',
+    'cs-CZ': 'cs_CZ',  # *
+    'da': 'da_DK',
+    'da-DK': 'da_DK',  # *
+    'de': 'de_DE',
+    'de-DE': 'de_DE',  # *
+    'en': 'en_US',
+    'en-US': 'en_US',  # *
+    'en-GB': 'en_GB',  # *
+    'es': 'es_ES',
+    'es-ES': 'es_ES',  # *
+    'fr': 'fr_FR',
+    'fr-FR': 'fr_FR',  # *
+    'it': 'it_IT',
+    'it-IT': 'it_IT',  # *
+    'ja': 'ja_JP',  # *
     'ja-JP': 'ja_JP',
-    'ko':    'ko_KR',
-    'ko-KR': 'ko_KR', # *
-    'nl':    'nl_NL',
-    'nl-NL': 'nl_NL', # *
-    'pl':    'pl_PL',
-    'pl-PL': 'pl_PL', # *
-    'pt':    'pt_PT',
-    'pt-PT': 'pt_PT', # *
-    'pt-BR': 'pt_BR', # *
-    'ru':    'ru_RU',
-    'ru-RU': 'ru_RU', # *
-    'sv':    'sv_SE',
-    'sv-SE': 'sv_SE', # *
-    'tr':    'tr_TR',
-    'tr-TR': 'tr_TR', # *
-    'zh-CN': 'zh_CN', # *
+    'ko': 'ko_KR',
+    'ko-KR': 'ko_KR',  # *
+    'nl': 'nl_NL',
+    'nl-NL': 'nl_NL',  # *
+    'pl': 'pl_PL',
+    'pl-PL': 'pl_PL',  # *
+    'pt': 'pt_PT',
+    'pt-PT': 'pt_PT',  # *
+    'pt-BR': 'pt_BR',  # *
+    'ru': 'ru_RU',
+    'ru-RU': 'ru_RU',  # *
+    'sv': 'sv_SE',
+    'sv-SE': 'sv_SE',  # *
+    'tr': 'tr_TR',
+    'tr-TR': 'tr_TR',  # *
+    'zh-CN': 'zh_CN',  # *
     'zh-TW': 'zh_TW'  # *
 }
 

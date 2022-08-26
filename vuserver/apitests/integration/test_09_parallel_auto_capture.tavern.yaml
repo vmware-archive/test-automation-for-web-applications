@@ -1,0 +1,188 @@
+---
+test_name: AutoCaptureUpload
+#
+#marks:
+#  usefixtures:
+#    - init_capture_upload
+
+includes:
+  - !include includes.yaml
+
+stages:
+  - name: Verify auto capture upload API testcase_id invalid
+    request:
+      url: "{SERVER_ROOT:s}/parallel/auto_capture_upload/"
+      method: POST
+      json:
+        test_id: "abc"
+    response:
+      strict:
+        - json:off
+      status_code: 200
+      json:
+        message: 'success'
+        text: 'Current testcase is not valid.'
+
+  - name: Verify auto capture upload API testcase_id invalid
+    request:
+      url: "{SERVER_ROOT:s}/parallel/auto_capture_upload/"
+      method: POST
+      json:
+        test_id: ""
+    response:
+      strict:
+        - json:off
+      status_code: 200
+      json:
+        message: 'success'
+
+---
+test_name: AutoCaptureUpload2
+#
+#marks:
+#  usefixtures:
+#    - init_capture_upload
+
+includes:
+  - !include includes.yaml
+
+stages:
+  - name: Verify capture API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/capture/"
+      method: POST
+      json:
+        captureid: "{CAPTURE_ID:s}"
+        consoleid: "28225"
+        img: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABsAAAAbCAMAAAC6CgRnAAAAPFBMVEX///8AAAD9/f2CgoKAgIAAAAAAAAAAAABLS0sAAAAAAACqqqqqqqq6urpKSkpISEgAAAC7u7u5ubn////zbsMcAAAAE3RSTlMASv6rqwAWS5YMC7/AyZWVFcrJCYaKfAAAAHhJREFUeF590kkOgCAQRFEaFVGc+/53FYmbz6JqBbyQMFSYuoQuV+iTflnstI7ssLXRvMWRaEMs84e2uVckuZe6knL0hiSPObXhj6ChzoEkIolIIpKIO4joICAIeDd7QGIfCCjOKe9HEk8mnxpIAup/F31RPZP9fAG3IAyBSJe0igAAAABJRU5ErkJggg=="
+    response:
+      strict:
+        - json:off
+      status_code: 200
+      json:
+        message: 'success'
+
+  - name: Verify create products API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/products/"
+      method: POST
+      json:
+        name: "TAWA"
+        bu_name: "CPBU"
+        bug_product_name: "vTaaS"
+        reported_issue_target: ""
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+  - name: create data for next stage
+    request:
+      url: "{SERVER_ROOT:s}/parallel/tests/"
+      method: POST
+      json:
+        name: 'cov-test-0'
+        apptype: 'parallel'
+        user: 'zzhuo'
+        product: 'TAWA'
+        build: 'ob-123'
+        resolution: '1600x1200'
+        leader_locale: 'en_US'
+        start_url: 'https://vms.eng.vmware.com/'
+#        locales: "['192.168.0.1']"
+        locales: "['en_US@192.168.0.1']"
+    response:
+      strict:
+        - json:off
+      status_code: 200
+      save:
+        json:
+          newtest_uuid: "testcase.uuid"
+          newtest_id: "testcase.id"
+          newrun_id: "testcase.run_id"
+
+  - name: Verify parallel start API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/tests/{newtest_uuid}/start"
+      method: POST
+      json:
+        pool: ""
+        test_id: "{newtest_id}"
+    response:
+      strict:
+        - json:off
+      status_code: 200
+      json:
+        message: 'success'
+    delay_after: 10
+
+  - name: Verify connect API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/connect/"
+      method: POST
+      json:
+        uuid: "{CLIENT_UUID:s}"
+        role: "leader"
+        locale: "en_US"
+        testcase: "{newtest_uuid}"
+    response:
+      strict:
+        - json:off
+      json:
+        message: 'success'
+      status_code: 200
+      save:
+        json:
+          newclient_uuid: client.uuid
+
+  - name: Verify record type
+    request:
+      url: "{SERVER_ROOT:s}/parallel/record/"
+      method: POST
+      json:
+        client: '{newclient_uuid}'
+        event: "1"
+        action: "click"
+        obj_xpath2: "cdSELECT[s"
+        obj_value: 'on'
+        sn: 0
+        captureid: '1de7a6ab-6644-4742-973f-1824cbf1f35f'
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+  - name: Verify captures API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/captures/{newtest_id}/{newrun_id}"
+      method: GET
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+  - name: Verify parallel stop API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/tests/{newtest_uuid}/stop"
+      method: POST
+      json:
+        test_id: "{newtest_id}"
+    response:
+      strict:
+        - json:off
+      status_code: 200
+      json:
+        message: 'success'
+
+  - name: Verify auto capture upload API testcase_id invalid
+    request:
+      url: "{SERVER_ROOT:s}/parallel/auto_capture_upload/"
+      method: POST
+      json:
+        test_id: ""
+    response:
+      strict:
+        - json:off
+      status_code: 200
+      json:
+        message: 'success'

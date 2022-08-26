@@ -1,3 +1,1 @@
-import os
-
-__version__ = '2021.6'
+__version__ = '2022.8'

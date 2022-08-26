@@ -1,0 +1,84 @@
+variables:
+  NOSE_REDNOSE_COLOR: force
+  GIT_DEPTH: 50
+  GIT_STRATEGY: fetch
+  APITESTS: "$CI_PROJECT_DIR/apitests"
+  VUSEVER: "$CI_PROJECT_DIR/vuserver"
+  VENV: "$CI_PROJECT_DIR/virtualenv"
+  COVERAGE: "$CI_PROJECT_DIR/bin/coverage"
+  ARTIFACTS: "$CI_PROJECT_DIR/artifacts"
+
+stages:
+  - lint
+  - flake
+  - test
+  - deploy
+
+.constants:
+  - &limit_resources "/usr/bin/sudo /usr/local/bin/limit-gitlab-job-resources"
+
+before_script:
+  - "echo Before Script:"
+
+
+django:lint:
+  stage: lint
+#  image: python/3.7.13-slim-bullseye
+#  image: python:3.7.13-slim-bullseye
+  tags:
+    - cherry
+#  only:
+#    - master
+  except:
+    - master
+  script:
+    - pip install pylint
+    - cd $CI_PROJECT_DIR
+    - pylint  $VUSEVER
+  allow_failure: true
+
+
+django:flake8:
+  stage: flake
+  tags:
+    - cherry
+#  only:
+#    - master
+  except:
+    - master
+  script:
+#    - figlet "Python FLAKE8"
+    - pip install flake8
+    - cd $CI_PROJECT_DIR
+    - flake8 $VUSEVER
+  allow_failure: true
+
+django:test:
+  stage: test
+  only:
+    - master
+  script:
+    - cd $APITESTS
+    - chmod +x coverage.sh
+    - chmod +x getcoverage.sh
+#    - figlet "Python PYTEST"
+#    - *install_virtualenv
+    - cd $CI_PROJECT_DIR/
+    - ./apitests/coverage.sh
+  allow_failure: true
+  artifacts:
+    paths:
+      - $CI_PROJECT_DIR/htmlcov.tar
+
+
+deploy_script:
+  stage: deploy
+  only:
+    - master
+  script:
+    - figlet "Deploy Script"
+    - cd $APITESTS
+    - pwd
+    - sshpass -p "passwd" ssh -o ConnectTimeout=10 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@host 'bash -s' < ./updateservice.sh
+  when: manual
+

@@ -10,7 +10,7 @@
 {% block extra_body %}
 {% for c in captures %}
     <div>
-        <h1 class="testcases-page">{{ c.capturetime }}</h1>
+        <h1 class="testcases-page">{{  c.event }}@{{ c.capturetime }}</h1>
         <img style='display:block; width:1600px;height:1200px;' id='base64image' src='{{ c.content }}'/>
     </div>
 {% endfor %}

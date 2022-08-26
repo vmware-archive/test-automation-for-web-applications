@@ -1,25 +1,49 @@
 # Copyright 2022 VMware, Inc.
 # SPDX-License-Identifier: Apache License 2.0
+import socket
 
-import os
 from .base import *
 
 ALLOWED_HOSTS = ['*']
+CORS_ALLOW_CREDENTIALS = True
+CORS_ORIGIN_ALLOW_ALL = True
 
+MYSQL_HOST = 'staging.tawa.vmware.com'
+MYSQL_PORT = '3306'
+MYSQL_USER = 'vmware'
+MYSQL_PASS = 'vmware'
+MYSQL_DB = 'app_tawa'
 
-POOL_HOSTS = {
-    "default": {
-        'type': 'localhost'
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': MYSQL_DB,
+        'USER': MYSQL_USER,
+        'PASSWORD': MYSQL_PASS,
+        'HOST': MYSQL_HOST,
+        'PORT': MYSQL_PORT,
+        'CHARSET': 'utf8'
     }
 }
 
-LOCALHOST_IP = '10.153.249.21'
-PARALLEL_SERVER = LOCALHOST_IP + ':9000'
+CONSOLE_POOLS = {
+    "public": {
+        'type': 'remote',
+        'upload_console_files': 'true',
+        'hosts': {
+            "staging.tawa.vmware.com": {'user':'root', 'pass':'tawa', 'port':22}
+        }
+    }
+}
+DEFAULT_POOL = 'public'
+WORKER_IMAGE = 'harbor-repo.vmware.com/vtaas_workers/parallel:tawa'
+
+LOCALHOST_IP = 'vuserver.ara.decc.vmware.com'
+PARALLEL_SERVER = LOCALHOST_IP + ':9100'
 VNC_MAPPING = {}
-SHAREDPOOL_URL = 'http://' + LOCALHOST_IP + ':9000/pool'
 
 USE_TZ = False
-WEBSOCKET_SERVER = 'ws://' + LOCALHOST_IP + ':9000'
+WEBSOCKET_SERVER = 'ws://' + LOCALHOST_IP + ':9101'
 SCRIPT_TEMPLATES = {
     'nodejs/vtaas-v2default': {
         "packages": {
@@ -30,15 +54,18 @@ SCRIPT_TEMPLATES = {
     }
 }
 
-PARALLEL_WORKER_IMAGE = 'localhost:5000/parallel:latest'
-STORAGE_ROOT = '/var/tawa_files/'
+HTTP_ACCESSIBILITY_SERVER = 'http://vms.eng.vmware.com:9004'
+EXT_ACCESSIBILITY_ENABLE = 'true'
+
+STORAGE_ROOT = '/tawa/'
 os.makedirs(STORAGE_ROOT, exist_ok=True)
-SCRIPTS_ROOT = os.path.join(STORAGE_ROOT, 'script')
+SCRIPTS_ROOT = os.path.join(STORAGE_ROOT, 'scripts')
 os.makedirs(SCRIPTS_ROOT, exist_ok=True)
-PARALLEL_ROOT = os.path.join(STORAGE_ROOT, 'parallel')
-os.makedirs(PARALLEL_ROOT, exist_ok=True)
+CONSOLES_ROOT = os.path.join(STORAGE_ROOT, 'consoles')
+os.makedirs(CONSOLES_ROOT, exist_ok=True)
 DOWNLOADS_ROOT = os.path.join(STORAGE_ROOT, 'downloads')
 os.makedirs(DOWNLOADS_ROOT, exist_ok=True)
-
+VIDEOS_ROOT = os.path.join(STORAGE_ROOT, 'videos')
+os.makedirs(VIDEOS_ROOT, exist_ok=True)
 # HTTP_PROXY = "http://proxy.vmware.com:3128"
 # HTTPS_PROXY = "https://proxy.vmware.com:3128"

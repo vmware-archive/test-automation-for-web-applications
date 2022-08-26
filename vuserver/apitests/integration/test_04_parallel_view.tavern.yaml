@@ -1,0 +1,1463 @@
+---
+test_name: Get products
+
+includes:
+  - !include includes.yaml
+
+stages:
+  - name: Verify products API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/products/"
+      method: GET
+    response:
+      strict:
+        - json:off
+      status_code: 200
+      json:
+        message: 'success'
+
+---
+test_name: POST products
+
+includes:
+  - !include includes.yaml
+
+stages:
+  - name: Verify products API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/products/"
+      method: POST
+      json:
+        name: "APITEST_Product_delete"
+        bu_name: "CPBU"
+        bug_product_name: "vTaaS"
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+---
+test_name: Get locales
+
+includes:
+  - !include includes.yaml
+
+stages:
+  - name: Verify locales API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/locales/"
+      method: GET
+    response:
+      strict:
+        - json:off
+      status_code: 200
+      json:
+        message: 'success'
+
+---
+test_name: Get resolutions
+
+includes:
+  - !include includes.yaml
+
+stages:
+  - name: Verify resolutions API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/resolutions/"
+      method: GET
+    response:
+      strict:
+        - json:off
+      status_code: 200
+      json:
+        message: 'success'
+---
+test_name: Make sure tests api functions
+
+includes:
+  - !include includes.yaml
+
+stages:
+  - name: Verify tests post API no name
+    request:
+      url: "{SERVER_ROOT:s}/parallel/tests/"
+      method: POST
+      json:
+        name: ''
+        apptype: 'accessibility-e2elib'
+        user: 'zzhuo'
+        product: 'TAWA'
+        build: 'ob-123'
+        resolution: '1600x1200'
+        start_url: 'https://vms.eng.vmware.com/'
+        locales: "['192.168.0.1']"
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+  - name: Verify tests post API no resolution
+    request:
+      url: "{SERVER_ROOT:s}/parallel/tests/"
+      method: POST
+      json:
+        name: 'cov-test-0'
+        apptype: 'accessibility-e2elib'
+        user: 'zzhuo'
+        product: 'TAWA'
+        build: 'ob-123'
+        resolution: ''
+        start_url: 'https://vms.eng.vmware.com/'
+        locales: "['192.168.0.1']"
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+  - name: Verify tests post API bad locales
+    request:
+      url: "{SERVER_ROOT:s}/parallel/tests/"
+      method: POST
+      json:
+        name: 'cov-test-0'
+        apptype: 'parallel'
+        user: 'zzhuo'
+        product: 'TAWA'
+        build: 'ob-123'
+        resolution: '1600x1200'
+        start_url: 'https://vms.eng.vmware.com/'
+        locales: "('192.168.0.1')"
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+  - name: Verify tests post API with special apptype
+    request:
+      url: "{SERVER_ROOT:s}/parallel/tests/"
+      method: POST
+      json:
+        name: 'cov-test-0'
+        apptype: 'accessibility-e2elib'
+        user: 'zzhuo'
+        product: 'TAWA'
+        build: 'ob-123'
+        resolution: '1600x1200'
+        start_url: 'https://vms.eng.vmware.com/'
+        locales: "['192.168.0.1']"
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+  - name: Verify tests post API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/tests/"
+      method: POST
+      json:
+        name: 'cov-test-0'
+        apptype: 'parallel'
+        user: 'zzhuo'
+        product: 'TAWA'
+        build: 'ob-123'
+        resolution: '1600x1200'
+        start_url: 'https://vms.eng.vmware.com/'
+        locales: "['192.168.0.1']"
+    response:
+      strict:
+        - json:off
+      status_code: 200
+      save:
+        json:
+          newtest_uuid: "testcase.uuid"
+          newtest_id: "testcase.id"
+
+  - name: Verify tests get API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/tests/{newtest_uuid}"
+      method: GET
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+  - name: Verify tests get API with wrong uuid
+    request:
+      url: "{SERVER_ROOT:s}/parallel/tests/wrong_uuid"
+      method: GET
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+  - name: Verify tests get API with wrong uuid
+    request:
+      url: "{SERVER_ROOT:s}/parallel/tests/123456"
+      method: GET
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+  - name: Verify all tests get API, with no uuid
+    request:
+      url: "{SERVER_ROOT:s}/parallel/tests/"
+      method: GET
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+  - name: Verify patch testcase
+    request:
+      url: "{SERVER_ROOT:s}/parallel/tests/{newtest_uuid}"
+      method: PATCH
+      json:
+        accessibilityData: "accessibilityData"
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+  - name: Verify patch testcase
+    request:
+      url: "{SERVER_ROOT:s}/parallel/tests/12345"
+      method: PATCH
+    response:
+      strict:
+        - json:off
+      status_code: 200
+      json:
+        message: "Error TestCase"
+
+  - name: Verify delete testcase ok
+    request:
+      url: "{SERVER_ROOT:s}/parallel/tests/{newtest_uuid}"
+      method: DELETE
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+  - name: Verify delete testcase error uuid
+    request:
+      url: "{SERVER_ROOT:s}/parallel/tests/12345"
+      method: DELETE
+    response:
+      strict:
+        - json:off
+      status_code: 200
+      json:
+        message: "Error TestCase"
+
+  - name: Verify tests post API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/tests/"
+      method: POST
+      json:
+        name: 'cov-test-0'
+        apptype: 'parallel'
+        user: 'zzhuo'
+        product: 'TAWA'
+        build: 'ob-123'
+        resolution: '1600x1200'
+        start_url: 'https://vms.eng.vmware.com/'
+        locales: "['192.168.0.1']"
+    response:
+      strict:
+        - json:off
+      status_code: 200
+      save:
+        json:
+          newtest_uuid: "testcase.uuid"
+          newtest_id: "testcase.id"
+
+  - name: Verify products API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/products/"
+      method: POST
+      json:
+        name: "ESXi"
+        bu_name: "CPBU"
+        bug_product_name: "vTaaS"
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+  - name: Verify tests/put API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/tests/{newtest_uuid}"
+      method: PUT
+      json:
+        name: 'cov-test-2'
+        apptype: 'parallel'
+        user: 'zzhuo'
+        product: 'ESXi'
+        build: 'ob-123456'
+        resolution: '1600x1200'
+        start_url: 'https://vms.eng.vmware.com/'
+        locales: "[123, '456@789@1234']"
+    response:
+      strict:
+        - json:off
+      status_code: 200
+---
+test_name: Parallel Status
+
+includes:
+  - !include includes.yaml
+
+stages:
+  - name: Verify Parallel Status API lack params
+    request:
+      url: "{SERVER_ROOT:s}/parallel/status/"
+      method: POST
+      json:
+        client: ''
+        eventid: 'parallel'
+        status: ''
+        message: 'TAWA'
+        event_action: 'ob-123'
+    response:
+      strict:
+        - json:off
+      status_code: 200
+      json:
+        message: 'not valid'
+
+  - name: Verify Parallel Status API invalid client
+    request:
+      url: "{SERVER_ROOT:s}/parallel/status/"
+      method: POST
+      json:
+        client: 'abace'
+        eventid: 'parallel'
+        status: 'running'
+        message: 'TAWA'
+        event_action: 'ob-123'
+    response:
+      strict:
+        - json:off
+      status_code: 200
+      json:
+        message: 'Invalid client uuid'
+
+  - name: Verify Parallel Status API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/status/"
+      method: POST
+      json:
+        client: 'abace'
+        eventid: 'parallel'
+        status: 'sendverify'
+        message: 'TAWA'
+        event_action: 'ob-123'
+    response:
+      strict:
+        - json:off
+      status_code: 200
+      json:
+        message: 'Invalid client uuid'
+
+  - name: Verify last_event API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/last_event/999"
+      method: GET
+    response:
+      strict:
+        - json:off
+      status_code: 200
+      json:
+        message: 'Error TestCase'
+
+  - name: Verify create products API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/products/"
+      method: POST
+      json:
+        name: "TAWA"
+        bu_name: "CPBU"
+        bug_product_name: "vTaaS"
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+  - name: Create testcase for use
+    request:
+      url: "{SERVER_ROOT:s}/parallel/tests/"
+      method: POST
+      json:
+        name: 'cov-test-0'
+        apptype: 'recording'
+        user: 'zzhuo'
+        product: 'TAWA'
+        build: 'ob-123'
+        resolution: '1600x1200'
+        start_url: 'https://vms.eng.vmware.com/'
+        locales: "['192.168.0.1']"
+    response:
+      strict:
+        - json:off
+      status_code: 200
+      save:
+        json:
+          newtest_id: "testcase.id"
+          newtest_uuid: "testcase.uuid"
+
+  - name: Verify last_event API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/last_event/{newtest_id}"
+      method: GET
+    response:
+      strict:
+        - json:off
+      status_code: 200
+      json:
+        message: 'No Event'
+
+  - name: Verify parallel start API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/tests/{newtest_uuid}/start"
+      method: POST
+      json:
+        pool: ""
+        test_id: "{newtest_id}"
+    response:
+      strict:
+        - json:off
+      status_code: 200
+      json:
+        message: 'success'
+    delay_after: 10
+
+  - name: Verify connect API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/connect/"
+      method: POST
+      json:
+        uuid: "{CLIENT_UUID:s}"
+        role: "leader"
+        locale: "en_US"
+        testcase: "{newtest_uuid}"
+    response:
+      strict:
+        - json:off
+      json:
+        message: 'success'
+      status_code: 200
+      save:
+        json:
+          newclient_uuid: client.uuid
+
+  - name: Verify record click1
+    request:
+      url: "{SERVER_ROOT:s}/parallel/record/"
+      method: POST
+      json:
+        client: '{newclient_uuid}'
+        action: ""
+        event: "1"
+        obj_xpath2: "abSELECT["
+        obj_text: "open"
+        sn: 0
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+  - name: Verify uievents API
+    request:
+      url: "{SERVER_ROOT}/parallel/uievents/{newtest_id}/1"
+      method: GET
+    response:
+      strict:
+        - json:off
+      status_code: 200
+      save:
+        json:
+          event_id: "uievents[0].id"
+
+  - name: Verify Parallel Status API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/status/"
+      method: POST
+      json:
+        client: '{newclient_uuid}'
+        eventid: '{event_id}'
+        status: 'sendverify'
+        message: 'TAWA'
+        event_action: 'recording'
+    response:
+      strict:
+        - json:off
+      status_code: 200
+      json:
+        message: 'success'
+    delay_after: 5
+
+  - name: Verify Parallel Status API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/status/"
+      method: POST
+      json:
+        client: '{newclient_uuid}'
+        eventid: '{event_id}'
+        status: 'good'
+        message: 'TAWA'
+        event_action: 'recording'
+    response:
+      strict:
+        - json:off
+      status_code: 200
+      json:
+        message: 'success'
+    delay_after: 5
+
+  - name: Verify parallel stop API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/tests/{newtest_uuid}/stop"
+      method: POST
+      json:
+        test_id: "{newtest_id}"
+    response:
+      strict:
+        - json:off
+      status_code: 200
+      json:
+        message: 'success'
+
+  - name: create data for next stage
+    request:
+      url: "{SERVER_ROOT:s}/parallel/tests/"
+      method: POST
+      json:
+        name: 'cov-test-0'
+        apptype: 'parallel'
+        user: 'zzhuo'
+        product: 'TAWA'
+        build: 'ob-123'
+        resolution: '1600x1200'
+        start_url: 'https://vms.eng.vmware.com/'
+        locales: "['192.168.0.1']"
+    response:
+      strict:
+        - json:off
+      status_code: 200
+      save:
+        json:
+          newtest_uuid: "testcase.uuid"
+          newtest_id: "testcase.id"
+#----------------------------------------------
+#  - name: Verify parallel tests get API
+#    request:
+#      url: "{SERVER_ROOT:s}/parallel/tests/parallel"
+#      method: GET
+#    response:
+#      strict:
+#        - json:off
+#      status_code: 200
+
+  - name: Verify tests/put API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/tests/{newtest_uuid}"
+      method: PUT
+      json:
+        name: cov-test-2
+        apptype: parallel
+        user: zzhuo
+        product: ESXi
+        build : ob-123456
+        resolution: '1600x1200'
+        start_url: 'https://vms.eng.vmware.com/'
+        locales: '[]'
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+---
+test_name: Connect
+
+includes:
+  - !include includes.yaml
+
+stages:
+  - name: Verify create products API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/products/"
+      method: POST
+      json:
+        name: "TAWA"
+        bu_name: "CPBU"
+        bug_product_name: "vTaaS"
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+  - name: create data for next stage
+    request:
+      url: "{SERVER_ROOT:s}/parallel/tests/"
+      method: POST
+      json:
+        name: 'cov-test-99'
+        apptype: 'parallel'
+        user: 'zzhuo'
+        product: 'TAWA'
+        build: 'ob-123'
+        resolution: '1600x1200'
+        start_url: 'https://vms.eng.vmware.com/'
+#        locales: "['192.168.0.1@abc']"
+        locales: "['en_US@192.168.0.1']"
+    response:
+      strict:
+        - json:off
+      status_code: 200
+      save:
+        json:
+          newtest_uuid: "testcase.uuid"
+          newtest_id: "testcase.id"
+
+  - name: Verify parallel start API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/tests/{newtest_uuid}/start"
+      method: POST
+      json:
+        pool: ""
+        test_id: "{newtest_id}"
+    response:
+      strict:
+        - json:off
+      status_code: 200
+      json:
+        message: 'success'
+    delay_after: 10
+
+  - name: Verify connect API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/connect/"
+      method: POST
+      json:
+        uuid: "{CLIENT_UUID:s}"
+        role: "worker"
+        locale: "en-US"
+        testcase: "{newtest_uuid}"
+    response:
+      strict:
+        - json:off
+      json:
+        message: 'success'
+      status_code: 200
+      save:
+        json:
+          newclient_uuid: client.uuid
+
+  - name: Verify connect API can not find testcase
+    request:
+      url: "{SERVER_ROOT:s}/parallel/connect/"
+      method: POST
+      json:
+        uuid: "{CLIENT_UUID:s}"
+        role: "leader"
+        locale: "en-US"
+        testcase: "abc"
+    response:
+      strict:
+        - json:off
+      json:
+        message: 'Cannot find testcase abc'
+      status_code: 200
+
+  - name: Verify parallel stop API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/tests/{newtest_uuid}/stop"
+      method: POST
+      json:
+        test_id: "{newtest_id}"
+    response:
+      strict:
+        - json:off
+      status_code: 200
+      json:
+        message: 'success'
+
+######################################
+#
+#  - name: Verify record open
+#    request:
+#      url: "{SERVER_ROOT:s}/parallel/record/"
+#      method: POST
+#      json:
+#        client: '{newclient_uuid}'
+#        action: "open"
+#    response:
+#      strict:
+#        - json:off
+#      status_code: 200
+
+---
+test_name: Get uievents
+
+includes:
+  - !include includes.yaml
+
+stages:
+  - name: Verify create products API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/products/"
+      method: POST
+      json:
+        name: "TAWA"
+        bu_name: "CPBU"
+        bug_product_name: "vTaaS"
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+  - name: create data for next stage
+    request:
+      url: "{SERVER_ROOT:s}/parallel/tests/"
+      method: POST
+      json:
+        name: 'cov-test-0'
+        apptype: 'parallel'
+        user: 'zzhuo'
+        product: 'TAWA'
+        build: 'ob-123'
+        resolution: '1600x1200'
+        start_url: 'https://vms.eng.vmware.com/'
+        locales: "['192.168.0.1']"
+    response:
+      strict:
+        - json:off
+      status_code: 200
+      save:
+        json:
+          newtest_uuid: "testcase.uuid"
+          newtest_id: "testcase.id"
+
+  - name: Verify parallel start API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/tests/{newtest_uuid}/start"
+      method: POST
+      json:
+        pool: ""
+        test_id: "{newtest_id}"
+    response:
+      strict:
+        - json:off
+      status_code: 200
+      json:
+        message: 'success'
+    delay_after: 10
+
+  - name: Verify connect API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/connect/"
+      method: POST
+      json:
+        uuid: "{CLIENT_UUID:s}"
+        role: "leader"
+        locale: "en_US"
+        testcase: "{newtest_uuid}"
+    response:
+      strict:
+        - json:off
+      json:
+        message: 'success'
+      status_code: 200
+      save:
+        json:
+          newclient_uuid: client.uuid
+
+  - name: Verify record click1
+    request:
+      url: "{SERVER_ROOT:s}/parallel/record/"
+      method: POST
+      json:
+        client: '{newclient_uuid}'
+        action: ""
+        event: "1"
+        obj_xpath2: "abSELECT["
+        obj_text: "open"
+        sn: 0
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+  - name: Verify record type
+    request:
+      url: "{SERVER_ROOT:s}/parallel/record/"
+      method: POST
+      json:
+        client: '{newclient_uuid}'
+        event: "2"
+        action: ""
+        obj_xpath2: "cdSELECT["
+        sn: 0
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+  - name: Verify record keydown
+    request:
+      url: "{SERVER_ROOT:s}/parallel/record/"
+      method: POST
+      json:
+        client: '{newclient_uuid}'
+        event: "9"
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+  - name: Verify record keyup
+    request:
+      url: "{SERVER_ROOT:s}/parallel/record/"
+      method: POST
+      json:
+        client: '{newclient_uuid}'
+        event: "10"
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+  - name: Verify record input
+    request:
+      url: "{SERVER_ROOT:s}/parallel/record/"
+      method: POST
+      json:
+        client: '{newclient_uuid}'
+        event: "11"
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+  - name: Verify record mousedown
+    request:
+      url: "{SERVER_ROOT:s}/parallel/record/"
+      method: POST
+      json:
+        client: '{newclient_uuid}'
+        event: "19"
+        action: ""
+        obj_xpath2: "ssSELECT["
+        obj_text: "1;2;4"
+        sn: 0
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+  - name: Verify record mouseup
+    request:
+      url: "{SERVER_ROOT:s}/parallel/record/"
+      method: POST
+      json:
+        client: '{newclient_uuid}'
+        event: "20"
+        action: ""
+        obj_xpath2: "fsSELECT["
+        obj_text: "1;2;4"
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+  - name: Verify record mouseover
+    request:
+      url: "{SERVER_ROOT:s}/parallel/record/"
+      method: POST
+      json:
+        client: '{newclient_uuid}'
+        event: "24"
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+  - name: Verify record browserprompt
+    request:
+      url: "{SERVER_ROOT:s}/parallel/record/"
+      method: POST
+      json:
+        client: '{newclient_uuid}'
+        event: "29"
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+  - name: Verify record tabswitch
+    request:
+      url: "{SERVER_ROOT:s}/parallel/record/"
+      method: POST
+      json:
+        client: '{newclient_uuid}'
+        event: "33"
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+  - name: Verify record screenshot
+    request:
+      url: "{SERVER_ROOT:s}/parallel/record/"
+      method: POST
+      json:
+        client: '{newclient_uuid}'
+        action: "screenshot"
+        event: "19"
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+  - name: Verify record report_issue
+    request:
+      url: "{SERVER_ROOT:s}/parallel/record/"
+      method: POST
+      json:
+        client: '{newclient_uuid}'
+        action: "report_issue"
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+  - name: Verify record report_issue
+    request:
+      url: "{SERVER_ROOT:s}/parallel/record/"
+      method: POST
+      json:
+        client: '{newclient_uuid}'
+        action: 'unlocal_check'
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+  - name: Verify parallel stop API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/tests/{newtest_uuid}/stop"
+      method: POST
+      json:
+        test_id: "{newtest_id}"
+    response:
+      strict:
+        - json:off
+      status_code: 200
+      json:
+        message: 'success'
+
+---
+test_name: Parallel test start
+
+includes:
+  - !include includes.yaml
+
+stages:
+  - name: Create testcase for use
+    request:
+      url: "{SERVER_ROOT:s}/parallel/tests/"
+      method: POST
+      json:
+        name: 'cov-test-0'
+        apptype: 'parallel'
+        user: 'zzhuo'
+        product: 'TAWA'
+        build: 'ob-123'
+        resolution: '1600x1200'
+        start_url: 'https://vms.eng.vmware.com/'
+        locales: "['192.168.0.1']"
+    response:
+      strict:
+        - json:off
+      status_code: 200
+      save:
+        json:
+          newtest_uuid: "testcase.uuid"
+          newtest_id: "testcase.id"
+
+  - name: Verify parallel start API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/tests/{newtest_uuid}/start"
+      method: POST
+      json:
+        pool: ""
+        test_id: "{newtest_id}"
+    response:
+      strict:
+        - json:off
+      status_code: 200
+      json:
+        message: 'success'
+    delay_after: 10
+
+---
+test_name: Parallel test stop
+
+includes:
+  - !include includes.yaml
+
+stages:
+  - name: Create testcase for use
+    request:
+      url: "{SERVER_ROOT:s}/parallel/tests/"
+      method: POST
+      json:
+        name: 'cov-test-0'
+        apptype: 'recording'
+        user: 'zzhuo'
+        product: 'TAWA'
+        build: 'ob-123'
+        resolution: '1600x1200'
+        start_url: 'https://vms.eng.vmware.com/'
+        locales: "['192.168.0.1']"
+    response:
+      strict:
+        - json:off
+      status_code: 200
+      save:
+        json:
+          newtest_uuid: "testcase.uuid"
+          newtest_id: "testcase.id"
+
+  - name: Verify parallel start API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/tests/{newtest_uuid}/start"
+      method: POST
+      json:
+        pool: ""
+        test_id: "{newtest_id}"
+    response:
+      strict:
+        - json:off
+      status_code: 200
+      json:
+        message: 'success'
+    delay_after: 10
+
+  - name: Verify parallel stop API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/tests/{newtest_uuid}/stop"
+      method: POST
+      json:
+        test_id: "{newtest_id}"
+    response:
+      strict:
+        - json:off
+      status_code: 200
+      json:
+        message: 'success'
+
+  - name: Verify parallel stop API not exist
+    request:
+      url: "{SERVER_ROOT:s}/parallel/tests/abc/stop"
+      method: POST
+      json:
+        test_id: "1111"
+    response:
+      strict:
+        - json:off
+      status_code: 200
+      json:
+        message: "Test doesn't exist"
+
+---
+test_name: search tests
+
+includes:
+  - !include includes.yaml
+
+stages:
+  - name: Verify search tests post API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/search_tests"
+      method: POST
+      json:
+        ids: []
+        uuids: []
+        user: 'zzhuo'
+    response:
+      strict:
+        - json:off
+      json:
+        message: 'success'
+      status_code: 200
+
+  - name: Verify search tests post API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/search_tests"
+      method: POST
+      json:
+        ids: [ "5087" ]
+        uuids: []
+        user: ''
+    response:
+      strict:
+        - json:off
+      json:
+        message: 'success'
+      status_code: 200
+
+  - name: Verify search tests post API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/search_tests"
+      method: POST
+      json:
+        ids: []
+        uuids: ["7cd9f75a-b218-4c79-be31-0b018cfe6d38"]
+        user: ''
+    response:
+      strict:
+        - json:off
+      json:
+        message: 'success'
+      status_code: 200
+
+---
+test_name: Get testcase
+
+includes:
+  - !include includes.yaml
+
+stages:
+  - name: Verify testcase API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/live/{TESTCASE_UUID:s}"
+      method: GET
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+  - name: create data for next stage
+    request:
+      url: "{SERVER_ROOT:s}/parallel/tests/"
+      method: POST
+      json:
+        name: 'cov-01'
+        apptype: 'parallel'
+        user: 'zzhuo'
+        product: 'TAWA'
+        build: 'ob-123'
+        resolution: '1600x1200'
+        start_url: 'https://vms.eng.vmware.com/'
+        locales: "['192.168.0.1']"
+    response:
+      strict:
+        - json:off
+      status_code: 200
+      save:
+        json:
+          newtest_uuid: "testcase.uuid"
+          newtest_id: "testcase.id"
+
+  - name: Verify testcase API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/live/{newtest_uuid}"
+      method: GET
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+# actually could not create this testcase
+  - name: Create data which no start url for next stage
+    request:
+        url: "{SERVER_ROOT:s}/parallel/tests/"
+        method: POST
+        json:
+          name: 'cov-02'
+          apptype: 'parallel'
+          user: 'zzhuo'
+          product: 'TAWA'
+          build: 'ob-123'
+          resolution: '1600x1200'
+          start_url: ''
+          locales: "['192.168.0.1']"
+    response:
+        strict:
+          - json:off
+        status_code: 200
+        save:
+          json:
+            test_uuid_: "testcase.uuid"
+
+  - name: Verify testcase API no start url
+    request:
+      url: "{SERVER_ROOT:s}/parallel/live/{test_uuid_}"
+      method: GET
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+  - name: Create data which apptype is recoding url for next stage
+    request:
+      url: "{SERVER_ROOT:s}/parallel/tests/"
+      method: POST
+      json:
+        name: 'cov-02'
+        apptype: 'recording'
+        user: 'zzhuo'
+        product: 'TAWA'
+        build: 'ob-123'
+        resolution: '1600x1200'
+        start_url: 'https://vms.eng.vmware.com/'
+        locales: "['192.168.0.1']"
+    response:
+      strict:
+        - json:off
+      status_code: 200
+      save:
+        json:
+          test_uuid: "testcase.uuid"
+
+  - name: Verify testcase API apptype is recording
+    request:
+      url: "{SERVER_ROOT:s}/parallel/live/{test_uuid}"
+      method: GET
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+---
+test_name: Get usertests
+
+includes:
+  - !include includes.yaml
+
+stages:
+  - name: Verify usertests API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/usertests/{USER_NAME}"
+      method: GET
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+  - name: Verify usertests API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/usertests/goodjob"
+      method: GET
+    response:
+      strict:
+        - json:off
+      status_code: 200
+      json:
+        message: 'No TestCase'
+
+---
+test_name: Get test_report
+
+includes:
+  - !include includes.yaml
+
+stages:
+  - name: Verify test_report API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/tests/{TESTCASE_UUID}/report"
+      method: GET
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+  - name: Verify script generate API
+    request:
+      url: "{SERVER_ROOT:s}/script/generate"
+      method: POST
+      json:
+        test_id: "12"
+        run_id: "12"
+        events: "CPBU"
+        user: "CPBU"
+        product: "CPBU"
+        name: "CPBU"
+        bug_product_name: "vTaaS"
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+  - name: Verify create products API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/products/"
+      method: POST
+      json:
+        name: "TAWA"
+        bu_name: "CPBU"
+        bug_product_name: "vTaaS"
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+  - name: Create testcase for use
+    request:
+      url: "{SERVER_ROOT:s}/parallel/tests/"
+      method: POST
+      json:
+        name: 'cov-test-0'
+        apptype: 'recording'
+        user: 'zzhuo'
+        product: 'TAWA'
+        build: 'ob-123'
+        resolution: '1600x1200'
+        start_url: 'https://vms.eng.vmware.com/'
+        locales: "['192.168.0.1']"
+    response:
+      strict:
+        - json:off
+      status_code: 200
+      save:
+        json:
+          newtest_id: "testcase.id"
+          newtest_uuid: "testcase.uuid"
+
+  - name: Verify parallel start API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/tests/{newtest_uuid}/start"
+      method: POST
+      json:
+        pool: ""
+        test_id: "{newtest_id}"
+    response:
+      strict:
+        - json:off
+      status_code: 200
+      json:
+        message: 'success'
+    delay_after: 10
+
+  - name: Verify connect API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/connect/"
+      method: POST
+      json:
+        uuid: "{CLIENT_UUID:s}"
+        role: "leader"
+        locale: "en_US"
+        testcase: "{newtest_uuid}"
+    response:
+      strict:
+        - json:off
+      json:
+        message: 'success'
+      status_code: 200
+      save:
+        json:
+          newclient_uuid: client.uuid
+
+  - name: Verify record click1
+    request:
+      url: "{SERVER_ROOT:s}/parallel/record/"
+      method: POST
+      json:
+        client: '{newclient_uuid}'
+        action: ""
+        event: "1"
+        obj_xpath2: "abSELECT["
+        obj_text: "open"
+        sn: 0
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+  - name: Verify uievents API
+    request:
+      url: "{SERVER_ROOT}/parallel/uievents/{newtest_id}/1"
+      method: GET
+    response:
+      strict:
+        - json:off
+      status_code: 200
+      save:
+        json:
+          event_id: "uievents[0].id"
+
+  - name: Verify script generate API
+    request:
+      url: "{SERVER_ROOT:s}/script/generate"
+      method: POST
+      json:
+        test_id: "{newtest_id}"
+        run_id: "12"
+        events: ""
+        user: "CPBU"
+        product: "CPBU"
+        name: "CPBU"
+        bug_product_name: "vTaaS"
+    response:
+      strict:
+        - json:off
+      status_code: 200
+      save:
+        json:
+          script_id: "data.id"
+
+  - name: Verify test_report API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/tests/{newtest_uuid}/report"
+      method: GET
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+  - name: Verify parallel stop API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/tests/{newtest_uuid}/stop"
+      method: POST
+      json:
+        test_id: "{newtest_id}"
+    response:
+      strict:
+        - json:off
+      status_code: 200
+      json:
+        message: 'success'
+
+---
+test_name: Get xy
+
+includes:
+  - !include includes.yaml
+
+stages:
+  - name: Verify xy view
+    request:
+      url: "{SERVER_ROOT:s}/parallel/xy/"
+      method: GET
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+---
+test_name: Get bp
+
+includes:
+  - !include includes.yaml
+
+stages:
+  - name: Verify bp view
+    request:
+      url: "{SERVER_ROOT:s}/parallel/bp/"
+      method: GET
+    response:
+      strict:
+        - json:off
+      status_code: 200

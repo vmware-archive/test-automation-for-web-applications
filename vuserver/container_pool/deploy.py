@@ -1,97 +1,109 @@
 # Copyright 2022 VMware, Inc.
 # SPDX-License-Identifier: Apache License 2.0
 
-from django.core.exceptions import FieldError
-from django.http import Http404
-from rest_framework.response import Response
-from rest_framework import status
-from rest_framework.views import APIView
-from django.db.models import Q, F, Count, Sum
-from django.db import transaction
-from datetime import datetime, timezone, timedelta
-import random
-from rest_framework_tracking.mixins import LoggingMixin
-import requests
-from django.conf import settings
-import shutil
-import os
-import sys
-import json
-import time
-from .models import Host, Deployment
-from .serializers import DeploymentSerializer
-from fabric import Connection
 import logging
-from multiprocessing import Pool, Process
+import os
+import random
 import subprocess
+import tarfile
+import time
+from multiprocessing import Pool
+
+import paramiko
+from django.conf import settings
+from fabric import Connection
+
+from .models import Deployment
+from .serializers import DeploymentSerializer
+
 logger = logging.getLogger('pool')
 
 
 def run_command(command):
     subprocess.Popen(command, shell=True)
 
-def getRemoteBusyPorts(self, host, user, passwd):
-    busyPorts = []
+
+def stop_deployment(d):
+    ssh = paramiko.SSHClient()
+    ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    logger.info('stopping: {}-{} on {}'.format(d.apptype, d.consoleid, d.host))
+    ssh.connect(d.host, 22, 'root', 'v')
+    remote_root = '/root/'
+    remote_path = os.path.join(remote_root, d.deploypath)
+    composer_command = "cd {0}; docker-compose down".format(remote_path)
+    stdin, stdout, stderr = ssh.exec_command(composer_command)
+    res, err = stdout.read(), stderr.read()
+    result = res if res else err
+    logger.info(
+        'composer_command output: {}, {}'.format(composer_command, result))
+    ssh.close()
+
+
+def get_remote_busy_ports(host, user, passwd):
+    busy_ports = []
     netstat_command = "lsof -i -P -n | grep LISTEN| grep TCP |awk '{print $9}'"
     console_output = None
     try:
-        conn = Connection(host, user=user, connect_kwargs={'password': passwd}, connect_timeout=5)
+        conn = Connection(host, user=user, connect_kwargs={'password': passwd},
+                          connect_timeout=5)
         console_output = conn.run(netstat_command, hide=True).stdout
         conn.close()
     except Exception:
         if conn:
             conn.close()
     if not console_output:
-        return busyPorts
+        return busy_ports
     for line in console_output.splitlines():
         items = line.split(':')
         if len(items) > 0:
             try:
-                busyPorts += [
+                busy_ports += [
                     int(items[-1].strip()),
                 ]
             except Exception:
                 pass
-    return busyPorts
+    return busy_ports
 
 
-def getLocalBusyPorts():
-    busyPorts = []
+def get_local_busy_ports():
+    busy_ports = []
     netstat_command = "lsof -i -P -n | grep LISTEN| grep TCP |awk '{print $9}'"
     val = os.popen(netstat_command)
     for line in val.readlines():
         items = line.split(':')
         if len(items) > 0:
             try:
-                busyPorts += [
+                busy_ports += [
                     int(items[-1].strip()),
                 ]
             except Exception:
                 pass
-    return busyPorts
+    return busy_ports
 
-def startConsoles(consoles, pool='default'):
-    pool_settings = settings.POOL_HOSTS.get(pool, {})
+
+def start_consoles(consoles, pool='default'):
+    pool_settings = settings.CONSOLE_POOLS.get(pool, {})
     if not pool_settings:
         return {'message': 'Failed, invalid pool.'}
 
     pool_type = pool_settings.get('type', '')
-    if pool_type not in ['localhost',]:
+    if pool_type not in ['localhost', "remote"]:
         return {'message': 'Failed, invalid pool type.'}
 
-    running_consoles = {}
+    deployments = {}
     if pool_type == 'localhost':
-        busyPorts = getLocalBusyPorts()
+        busy_ports = get_local_busy_ports()
         all_resources = []
-        startport = settings.POOL_HOSTS[pool].get('startport', 6950)
+        startport = settings.CONSOLE_POOLS[pool].get('startport', 6950)
         for index in range(0, 20):
             port = startport + index
-            if port not in busyPorts:
+            if port not in busy_ports:
                 all_resources.append(index)
         if len(all_resources) < len(consoles):
-                return {'message': 'Lack of resource: {0} expected, {1} available'.format(len(consoles), len(all_resources))}
+            return {
+                'message': 'Lack of resource: {0} expected, {1} available'.format(
+                    len(consoles), len(all_resources))}
         deploy_commands = []
-        check_commands = []
         expected_ports = []
         for console in consoles:
             logger.debug('console: {}'.format(console))
@@ -99,17 +111,19 @@ def startConsoles(consoles, pool='default'):
             expected_ports.append(startport + user_index)
             all_resources.remove(user_index)
             d = Deployment.objects.create(host=settings.LOCALHOST_IP,
-                                        index=user_index,
-                                        port=startport + user_index,
-                                        deploypath=console['path'],
-                                        consoleid=console['id'],
-                                        apptype=console['type'])
+                                          index=user_index,
+                                          port=startport + user_index,
+                                          deploypath=console['path'],
+                                          consoleid=console['id'],
+                                          apptype=console['apptype'],
+                                          status='running',
+                                          pooltype=pool_type)
             serializer = DeploymentSerializer(d)
-            running_consoles[str(console['id'])] = serializer.data
+            deployments[str(console['id'])] = serializer.data
             logger.debug('==> localhost start: {}'.format(d.deploypath))
-            container_name = console['type'] + '-' + str(console['id'])
-            deploy_path = os.path.join(settings.STORAGE_ROOT, 'parallel', d.deploypath)
-            composer_command = "cd {0}; export PARALLEL_PORT_{1}={2}; docker-compose up -d".format(deploy_path, d.consoleid, d.port)
+            deploy_path = os.path.join(settings.CONSOLES_ROOT, d.deploypath)
+            composer_command = "cd {0}; export PARALLEL_PORT_{1}={2}; docker-compose up -d".format(
+                deploy_path, d.consoleid, d.port)
             deploy_commands.append(composer_command)
             # check_command = "docker inspect --format '{{ (index (index .NetworkSettings.Ports \"6901/tcp\") 0).HostPort }}' " +container_name
             # check_commands.append(check_command)
@@ -118,94 +132,131 @@ def startConsoles(consoles, pool='default'):
         pool.map(run_command, deploy_commands)
 
         while True:
-            newBusyPorts = getLocalBusyPorts()
+            newBusyPorts = get_local_busy_ports()
             if set(expected_ports).issubset(set(newBusyPorts)):
                 break
 
             print('waiting: ', expected_ports, newBusyPorts)
             time.sleep(0.5)
-    elif pool_type == 'hosts':
-        pass
-        # pool_hosts = settings.POOL_HOSTS[pool].get('hosts', [])
-        # if not pool_hosts:
-        #     return {'message': 'Failed, no host in current pool.'}
+        pool.close()
+    elif pool_type == 'remote':
+        running_deploys = Deployment.objects.filter(status='running')
+        pool_hosts = settings.CONSOLE_POOLS[pool]['hosts'].keys()
+        host_deploys = {}
+        for deploy in running_deploys:
+            if deploy.host not in pool_hosts:
+                continue
+            if deploy.host not in host_deploys.keys():
+                host_deploys[deploy.host] = 0
+            host_deploys[deploy.host] += 1
 
-        # all_resources = []
-        # # resources_list = []
-        # with transaction.atomic():
-        #     all_hosts = Host.objects.select_for_update().filter(status='available',
-        #                                                         capacity__gt=F('current_num'),
-        #                                                         ipaddr__in=pool_hosts)
-        #     for host in all_hosts:
-        #         for i in range(len(host.deployment)):
-        #             if host.deployment[i] == '1':
-        #                 continue
-        #             all_resources += [
-        #                 {
-        #                     'ipaddr': host.ipaddr,
-        #                     'i': i,
-        #                     'host': host
-        #                 },
-        #             ]
-        #     # print(all_resources, consoles)
-        #     if len(all_resources) < len(consoles):
-        #         return {'message': 'Lack of resource: {0} expected, {1} available'.format(len(consoles), len(all_resources))}
+        all_resources = []
+        for ph in pool_hosts:
+            current_count = host_deploys.get(ph, 0)
+            if current_count < 20:
+                all_resources += [ph] * (20 - current_count)
 
-        #     for console in consoles:
-        #         logger.debug('console: {}'.format(console))
-        #         user_resource = random.choice(all_resources)
-        #         all_resources.remove(user_resource)
-        #         d = Deployment.objects.create(host=user_resource['ipaddr'],
-        #                                     index=user_resource['i'],
-        #                                     port=user_resource['i'] + user_resource['host'].startport,
-        #                                     deploypath=console['path'],
-        #                                     consoleid=console['id'],
-        #                                     apptype=console['type'])
-        #         user_host = user_resource['host']
-        #         serializer = DeploymentSerializer(d)
-        #         running_consoles[str(console['id'])] = serializer.data
+        if len(all_resources) < len(consoles):
+            return {
+                'message': 'Lack of resource: {0} expected, {1} available'.format(
+                    len(consoles), len(all_resources))}
 
-        #         # update host
-        #         idx = user_resource['i']
-        #         user_host.deployment = user_host.deployment[:idx] + '1' + user_host.deployment[idx + 1:]
-        #         user_host.current_num += 1
-        #         user_host.starttime = datetime.now()
-        #         user_host.save()
+        ssh = paramiko.SSHClient()
+        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        for console in consoles:
+            logger.debug('console: {}'.format(console))
+            deploy_host = random.choice(all_resources)
+            all_resources.remove(deploy_host)
 
-        #         logger.debug('==> {} start: {}'.format(d.host, d.deploypath))
-    logger.debug('running_consoles: {}'.format(running_consoles))
-    return {'message': 'success', 'running_consoles': running_consoles}
+            local_path = os.path.join(settings.CONSOLES_ROOT, console['path'])
+            remote_root = '/root/'
+            remote_path = os.path.join(remote_root, console['path'])
 
-def stopConsoles(deployments, pool='default'):
-    pool_settings = settings.POOL_HOSTS.get(pool, {})
-    if not pool_settings:
-        return {'message': 'Failed, invalid pool.'}
+            tar = tarfile.open(local_path + ".tar.gz", "w:gz")
+            tar.add(local_path, arcname=os.path.basename(local_path))
+            tar.close()
 
-    pool_type = pool_settings.get('type', '')
-    if pool_type not in ['localhost',]:
-        return {'message': 'Failed, invalid pool type.'}
+            remote_port = 0
+            ssh.connect(str(deploy_host), 22, 'root', 'v')
+            if settings.CONSOLE_POOLS[pool].get('upload_console_files',
+                                                'false') == 'true':
+                ssh.exec_command(
+                    "mkdir -p {}".format(os.path.dirname(remote_path)))
 
+                sftp = paramiko.SFTPClient.from_transport(ssh.get_transport())
+                sftp = ssh.open_sftp()
+                sftp.put(local_path + ".tar.gz", remote_path + ".tar.gz")
+                sftp.close()
+
+                tar_command = "tar -C {} -mxzf {}".format(
+                    os.path.dirname(remote_path), remote_path + ".tar.gz")
+                stdin, stdout, stderr = ssh.exec_command(tar_command)
+                res, err = stdout.read(), stderr.read()
+                result = res if res else err
+                logger.info(
+                    'tar_command output: {}, {}'.format(tar_command, result))
+
+                composer_command = "cd {0}; docker-compose up -d && docker ps | grep {1}-{2}".format(
+                    remote_path, console['apptype'], console['id'])
+                stdin, stdout, stderr = ssh.exec_command(composer_command)
+                res, err = stdout.read(), stderr.read()
+                result = res.decode() if res else err.decode()
+                logger.info(
+                    'composer_command output: {}, {}'.format(composer_command,
+                                                             result))
+                m = result.find('0.0.0.0:')
+                n = result.find('->6901')
+                if m and n:
+                    try:
+                        remote_port = int(result[m + 8:n])
+                    except Exception:
+                        pass
+
+            d = Deployment.objects.create(host=deploy_host,
+                                          index=0,
+                                          port=remote_port,
+                                          deploypath=console['path'],
+                                          consoleid=console['id'],
+                                          apptype=console['apptype'],
+                                          status='running',
+                                          pooltype=pool_type)
+            # https://ip:port/?password=vncpassword&view_only=false
+            serializer = DeploymentSerializer(d)
+            deployments[str(console['id'])] = serializer.data
+        ssh.close()
+
+    logger.debug('deployments: {}'.format(deployments))
+    return {'message': 'success', 'deployments': deployments}
+
+
+def stop_consoles(deployments):
     ds = Deployment.objects.filter(uuid__in=deployments)
-    deploy_commands = []
-    if pool_type == 'localhost':
-        for d in ds:
-            deploy_path = os.path.join(settings.STORAGE_ROOT, 'parallel', d.deploypath)
-            composer_command = "cd {0}; export PARALLEL_PORT_{1}={2}; docker-compose down".format(deploy_path, d.consoleid, d.port)
-            deploy_commands.append(composer_command)
+    local_deploy_commands = []
+    remote_deployments = []
+    # ssh = paramiko.SSHClient()
+    # ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    for d in ds:
+        if d.pooltype == 'localhost':
+            deploy_path = os.path.join(settings.CONSOLES_ROOT, d.deploypath)
+            composer_command = f"cd {deploy_path}; export " \
+                               f"PARALLEL_PORT_{d.consoleid}={d.port};" \
+                               f" docker-compose down"
+            local_deploy_commands.append(composer_command)
+            d.status = 'stopped'
+            d.save()
+        elif d.pooltype == 'remote':
+            remote_deployments.append(d)
+            d.status = 'stopped'
+            d.save()
+
+    if local_deploy_commands:
         pool = Pool()
-        pool.map_async(run_command, deploy_commands)
-    elif pool_type == 'hosts':
-        pass
-        # for d in ds:
-        #     with transaction.atomic():
-        #         logger.debug('==> {} stop: {}'.format(d.host, d.deploypath))
-        #         user_hosts = Host.objects.select_for_update().filter(ipaddr=d.host)
-        #         if len(user_hosts) > 0:
-        #             user_host = user_hosts[0]
-        #             idx = d.index
-        #             if idx >= 0:
-        #                 user_host.deployment = user_host.deployment[:idx] + '0' + user_host.deployment[idx + 1:]
-        #                 user_host.current_num -= 1
-        #                 user_host.save()
+        pool.map_async(run_command, local_deploy_commands)
+        pool.close()
+
+    if remote_deployments:
+        pool = Pool()
+        pool.map_async(stop_deployment, remote_deployments)
+        pool.close()
 
     return {'message': 'success', 'stopped_deployments': deployments}

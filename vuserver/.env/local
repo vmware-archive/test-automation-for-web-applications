@@ -1,0 +1,2 @@
+DJANGO_SETTINGS_MODULE=vuserver.settings.local
+DEBUG=True

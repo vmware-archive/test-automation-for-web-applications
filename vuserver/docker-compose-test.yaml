@@ -1,0 +1,32 @@
+---
+version: '2'
+
+services:
+  redis:
+    image: 'redis:6'
+    # command: redis-server --requirepass yourpassword
+    ports:
+      - '6379:6379'
+    networks:
+      - main
+    container_name: vuserver-redis
+
+  channels:
+    image: harbor-repo.vmware.com/vtaas_workers/vuserver:tawa
+    command: daphne -b 0.0.0.0 -p 9101 vuserver.asgi:application
+    ports:
+      - "9101:9101"
+    networks:
+      - main
+    links:
+      - redis
+
+  server:
+    build:
+      context: .
+      dockerfile: Dockerfile-server
+#    container_name: fserver
+    ports:
+      - "5000:5000"
+networks:
+  main:

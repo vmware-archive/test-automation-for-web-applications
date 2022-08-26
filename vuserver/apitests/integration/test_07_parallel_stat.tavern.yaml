@@ -1,0 +1,661 @@
+---
+test_name: Get fulluievents
+
+includes:
+  - !include includes.yaml
+
+stages:
+  - name: Verify fulluievents API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/fulluievents"
+      method: GET
+    response:
+      strict:
+        - json:off
+      status_code: 200
+      json:
+        message: 'success'
+
+  - name: Verify fulluievents API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/fulluievents/20220627104337/20220627104337"
+      method: GET
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+  - name: Verify fulluievents API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/fulluievents/202206271043372/20220627104337"
+      method: GET
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+  - name: Verify fulluievents API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/fulluievents/20220627104337/202206271043372"
+      method: GET
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+  - name: Verify fulluievents API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/fulluievents/20220627/20220627"
+      method: GET
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+  - name: Verify fulluievents API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/fulluievents/20220627/20220627"
+      method: GET
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+  - name: Verify fulluievents API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/fulluievents/20220627/202206272"
+      method: GET
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+---
+test_name: Get captures
+
+includes:
+  - !include includes.yaml
+
+stages:
+  - name: Verify create products API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/products/"
+      method: POST
+      json:
+        name: "TAWA"
+        bu_name: "CPBU"
+        bug_product_name: "vTaaS"
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+  - name: create data for next stage
+    request:
+      url: "{SERVER_ROOT:s}/parallel/tests/"
+      method: POST
+      json:
+        name: 'cov-test-0'
+        apptype: 'parallel'
+        user: 'zzhuo'
+        product: 'TAWA'
+        build: 'ob-123'
+        resolution: '1600x1200'
+        start_url: 'https://vms.eng.vmware.com/'
+        locales: "['192.168.0.1']"
+    response:
+      strict:
+        - json:off
+      status_code: 200
+      save:
+        json:
+          newtest_uuid: "testcase.uuid"
+          newtest_id: "testcase.id"
+          newrun_id: "testcase.run_id"
+
+  - name: Verify parallel start API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/tests/{newtest_uuid}/start"
+      method: POST
+      json:
+        pool: ""
+        test_id: "{newtest_id}"
+    response:
+      strict:
+        - json:off
+      status_code: 200
+      json:
+        message: 'success'
+    delay_after: 10
+
+  - name: Verify connect API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/connect/"
+      method: POST
+      json:
+        uuid: "{CLIENT_UUID:s}"
+        role: "leader"
+        locale: "en_US"
+        testcase: "{newtest_uuid}"
+    response:
+      strict:
+        - json:off
+      json:
+        message: 'success'
+      status_code: 200
+      save:
+        json:
+          newclient_uuid: client.uuid
+
+  - name: Verify record type
+    request:
+      url: "{SERVER_ROOT:s}/parallel/record/"
+      method: POST
+      json:
+        client: '{newclient_uuid}'
+        event: "1"
+        action: "click"
+        obj_xpath2: "cdSELECT[s"
+        obj_value: 'on'
+        sn: 0
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+  - name: Verify captures API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/captures/{newtest_id}/{newrun_id}"
+      method: GET
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+  - name: Verify parallel stop API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/tests/{newtest_uuid}/stop"
+      method: POST
+      json:
+        test_id: "{newtest_id}"
+    response:
+      strict:
+        - json:off
+      status_code: 200
+      json:
+        message: 'success'
+
+---
+test_name: Get event capture
+
+includes:
+  - !include includes.yaml
+
+stages:
+  - name: Verify captures API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/capturedimage/{CAPTURE_EVENT_ID:s}"
+      method: GET
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+---
+test_name: Get capture
+
+includes:
+  - !include includes.yaml
+
+stages:
+  - name: Verify capture API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/capture/{CAPTURE_ID:s}"
+      method: GET
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+---
+test_name: Post users
+
+includes:
+  - !include includes.yaml
+
+stages:
+  - name: Verify users API not password
+    request:
+      url: "{SERVER_ROOT:s}/parallel/users/"
+      method: POST
+      json:
+        name: "zhangsan3"
+        password: ""
+    response:
+      strict:
+        - json:off
+      status_code: 200
+      json:
+        message: "Bad parameters"
+
+  - name: Verify users API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/users/"
+      method: POST
+      json:
+        name: "zhangsan3"
+        password: "v"
+    response:
+      strict:
+        - json:off
+      status_code: 200
+      json:
+        message: "success"
+
+  - name: Verify users API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/users/"
+      method: POST
+      json:
+        name: "zhangsan3"
+        password: "v"
+    response:
+      strict:
+        - json:off
+      status_code: 200
+      json:
+        message: "Already exist"
+
+---
+test_name: GET users
+
+includes:
+  - !include includes.yaml
+
+stages:
+  - name: Verify users API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/users/"
+      method: GET
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+  - name: Verify GET users API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/users/user/20220627/20220627"
+      method: GET
+    response:
+      strict:
+        - json:off
+      status_code: 200
+      json:
+        message: "success"
+
+  - name: Verify GET users API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/users/user/20220627/202206272"
+      method: GET
+    response:
+      strict:
+        - json:off
+      status_code: 200
+      json:
+        message: "success"
+
+  - name: Verify GET users API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/users/user/20220627101048/20220627101048"
+      method: GET
+    response:
+      strict:
+        - json:off
+      status_code: 200
+      json:
+        message: "success"
+
+  - name: Verify GET users API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/users/leader/20220627/20220627"
+      method: GET
+    response:
+      strict:
+        - json:off
+      status_code: 200
+      json:
+        message: "success"
+
+  - name: Verify GET users API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/users/leader/20220627/202206272"
+      method: GET
+    response:
+      strict:
+        - json:off
+      status_code: 200
+      json:
+        message: "success"
+
+  - name: Verify GET users API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/users/leader/20220627101048/20220627101048"
+      method: GET
+    response:
+      strict:
+        - json:off
+      status_code: 200
+      json:
+        message: "success"
+
+---
+test_name: Get users/time
+
+includes:
+  - !include includes.yaml
+
+stages:
+  - name: Verify users/time API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/users/time"
+      method: GET
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+---
+test_name: Get usertests
+
+includes:
+  - !include includes.yaml
+
+stages:
+  - name: Verify usertests API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/usertests/{USER_NAME}"
+      method: GET
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+---
+test_name: Get fulltests/test
+
+includes:
+  - !include includes.yaml
+
+stages:
+  - name: Verify fulltests/test API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/fulltests/test"
+      method: GET
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+  - name: Verify fulltests/test API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/fulltests/test/20220627/20220627"
+      method: GET
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+  - name: Verify fulltests/test API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/fulltests/test/20220627/20220627"
+      method: GET
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+  - name: Verify fulltests/test API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/fulltests/test/20220627/202206272"
+      method: GET
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+  - name: Verify fulltests/test API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/fulltests/test/20220627104337/20220627104337"
+      method: GET
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+  - name: Verify fulltests/test API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/fulltests/test/202206271043372/20220627104337"
+      method: GET
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+  - name: Verify fulltests/test API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/fulltests/test/20220627104337/202206271043372"
+      method: GET
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+---
+test_name: Get fulltests/product
+
+includes:
+  - !include includes.yaml
+
+stages:
+  - name: Verify fulltests/product API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/fulltests/product"
+      method: GET
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+  - name: Verify fulltests/product API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/fulltests/product/20220627/20220627"
+      method: GET
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+  - name: Verify fulltests/product API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/fulltests/product/202206272/20220627"
+      method: GET
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+  - name: Verify fulltests/product API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/fulltests/product/20220627/202206272"
+      method: GET
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+  - name: Verify fulltests/product API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/fulltests/product/20220627104337/20220627104337"
+      method: GET
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+  - name: Verify fulltests/product API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/fulltests/product/202206271043372/20220627104337"
+      method: GET
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+  - name: Verify fulltests/product API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/fulltests/product/20220627104337/202206271043372"
+      method: GET
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+---
+test_name: Get fulltests/user
+
+includes:
+  - !include includes.yaml
+
+stages:
+  - name: Verify fulltests/user API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/fulltests/user"
+      method: GET
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+  - name: Verify fulltests/user API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/fulltests/user/20220627/20220627"
+      method: GET
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+  - name: Verify fulltests/user API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/fulltests/user/20220627/20220627"
+      method: GET
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+  - name: Verify fulltests/user API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/fulltests/user/20220627/202206272"
+      method: GET
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+  - name: Verify fulltests/user API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/fulltests/user/20220627104337/20220627104337"
+      method: GET
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+  - name: Verify fulltests/user API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/fulltests/user/202206271043372/20220627104337"
+      method: GET
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+  - name: Verify fulltests/user API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/fulltests/user/20220627104337/202206271043372"
+      method: GET
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+---
+test_name: Get fulltests/time
+
+includes:
+  - !include includes.yaml
+
+stages:
+  - name: Verify fulltests/time API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/fulltests/time"
+      method: GET
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+  - name: Verify fulltests/time API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/fulltests/time/20220627/20220627"
+      method: GET
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+  - name: Verify fulltests/time API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/fulltests/time/20220627/20220627"
+      method: GET
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+  - name: Verify fulltests/time API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/fulltests/time/20220627/202206272"
+      method: GET
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+  - name: Verify fulltests/time API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/fulltests/time/20220627104337/20220627104337"
+      method: GET
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+  - name: Verify fulltests/time API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/fulltests/time/202206271043372/20220627104337"
+      method: GET
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+  - name: Verify fulltests/time API
+    request:
+      url: "{SERVER_ROOT:s}/parallel/fulltests/time/20220627104337/202206271043372"
+      method: GET
+    response:
+      strict:
+        - json:off
+      status_code: 200

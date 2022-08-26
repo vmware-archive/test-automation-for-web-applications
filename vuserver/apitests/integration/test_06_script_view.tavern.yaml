@@ -1,0 +1,228 @@
+---
+test_name: Get products
+
+includes:
+  - !include includes.yaml
+
+stages:
+  - name: Verify Get Templates list API
+    request:
+      url: "{SERVER_ROOT:s}/script/templates"
+      method: GET
+    response:
+      strict:
+        - json:off
+      status_code: 200
+      json:
+        message: 'success'
+
+---
+test_name: POST script generate
+
+includes:
+  - !include includes.yaml
+
+stages:
+  - name: Verify script generate API
+    request:
+      url: "{SERVER_ROOT:s}/script/generate"
+      method: POST
+      json:
+        test_id: "12"
+        run_id: "12"
+        events: "CPBU"
+        user: "CPBU"
+        product: "CPBU"
+        name: "CPBU"
+        bug_product_name: "vTaaS"
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+  - name: create data for next stage
+    request:
+      url: "{SERVER_ROOT:s}/parallel/tests/"
+      method: POST
+      json:
+        name: 'cov-01'
+        apptype: 'parallel'
+        user: 'zzhuo'
+        product: 'TAWA'
+        build: 'ob-123'
+        resolution: '1600x1200'
+        start_url: 'https://vms.eng.vmware.com/'
+        locales: "['192.168.0.1']"
+    response:
+      strict:
+        - json:off
+      status_code: 200
+      save:
+        json:
+          newtest_uuid: "testcase.uuid"
+          newtest_id: "testcase.id"
+
+  - name: Verify script generate API
+    request:
+      url: "{SERVER_ROOT:s}/script/generate"
+      method: POST
+      json:
+        test_id: "{newtest_id}"
+        run_id: "12"
+        events: ""
+        user: "CPBU"
+        product: "CPBU"
+        name: "CPBU"
+        bug_product_name: "vTaaS"
+    response:
+      strict:
+        - json:off
+      status_code: 200
+      save:
+        json:
+          script_id: "data.id"
+
+  - name: Verify script generate API
+    request:
+      url: "{SERVER_ROOT:s}/script/generate"
+      method: POST
+      json:
+        test_id: "{newtest_id}"
+        run_id: "12"
+        events: "['start']"
+        user: "CPBU"
+        product: "CPBU"
+        name: "CPBU"
+        bug_product_name: "vTaaS"
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+  - name: Verify script generate API
+    request:
+      url: "{SERVER_ROOT:s}/script/generate"
+      method: POST
+      json:
+        test_id: "111111"
+        run_id: "12"
+        events: ""
+        user: "CPBU"
+        product: "CPBU"
+        name: "CPBU"
+        bug_product_name: "vTaaS"
+    response:
+      strict:
+        - json:off
+      status_code: 200
+      json:
+        message: "Failed: bad parameter."
+
+  - name: Verify script generate API
+    request:
+      url: "{SERVER_ROOT:s}/script/generate"
+      method: POST
+      json:
+        script_template: 'abc'
+        test_id: "111111"
+        run_id: "12"
+        events: "[CPBU]"
+        user: "CPBU"
+        product: "CPBU"
+        name: "CPBU"
+        bug_product_name: "vTaaS"
+    response:
+      strict:
+        - json:off
+      status_code: 200
+      json:
+        message: "Bad template: abc"
+
+  - name: Verify Get Template detail API not exist
+    request:
+      url: "{SERVER_ROOT:s}/script/scripts/123456"
+      method: GET
+    response:
+      strict:
+        - json:off
+      status_code: 200
+      json:
+        message: "Script doesn't exist"
+
+  - name: Verify Get Template detail API not exist
+    request:
+      url: "{SERVER_ROOT:s}/script/scripts/{script_id}"
+      method: GET
+    response:
+      strict:
+        - json:off
+      status_code: 200
+
+---
+test_name: Get download
+
+includes:
+  - !include includes.yaml
+
+stages:
+  - name: Verify get download API not exist
+    request:
+      url: "{SERVER_ROOT:s}/script/download/12345"
+      method: GET
+    response:
+      strict:
+        - json:off
+      status_code: 200
+      json:
+        message: "Script doesn't exist"
+
+  - name: create data for next stage
+    request:
+      url: "{SERVER_ROOT:s}/parallel/tests/"
+      method: POST
+      json:
+        name: 'cov-01'
+        apptype: 'parallel'
+        user: 'zzhuo'
+        product: 'TAWA'
+        build: 'ob-123'
+        resolution: '1600x1200'
+        start_url: 'https://vms.eng.vmware.com/'
+        locales: "['192.168.0.1']"
+    response:
+      strict:
+        - json:off
+      status_code: 200
+      save:
+        json:
+          newtest_uuid: "testcase.uuid"
+          newtest_id: "testcase.id"
+
+  - name: Verify script generate API
+    request:
+      url: "{SERVER_ROOT:s}/script/generate"
+      method: POST
+      json:
+        test_id: "{newtest_id}"
+        run_id: "12"
+        events: ""
+        user: "CPBU"
+        product: "CPBU"
+        name: "CPBU"
+        bug_product_name: "vTaaS"
+    response:
+      strict:
+        - json:off
+      status_code: 200
+      save:
+        json:
+          script_id: "data.id"
+
+  - name: Verify get download API
+    request:
+      url: "{SERVER_ROOT:s}/script/download/{script_id}"
+      method: GET
+    response:
+      strict:
+        - json:off
+      status_code: 200

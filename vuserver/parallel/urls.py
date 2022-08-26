@@ -2,13 +2,13 @@
 # SPDX-License-Identifier: Apache License 2.0
 
 from django.conf.urls import url
-# from rest_framework.urlpatterns import format_suffix_patterns
 from . import views
 from .views import Products, Locales, Resolutions
 from .views import Connect, Record, ClientStatus, ShowTestcase
 from .views import TestStart, TestStop, TestManager
-from .capture import CaptureSaver, AutoCaptureUpload
-from .capture import EventCapture, ShowCapture, ShowTestCaptures
+from .views import ShutdownApp
+from .capture import CaptureSaver, AutoCaptureUpload, TextResource, stream_video
+from .capture import EventCapture, ShowCapture, ShowTestCaptures, ShowTestVideo
 from .views import SearchTests, UserTests, TestReport
 from .stat import FullUsers, FullTests, FullEvents
 from .event import EventsbyIDs, EventsbyScript, SingleRunEvents, SingleRunScriptEvents
@@ -20,6 +20,8 @@ app_name = 'parallel'
 
 parallel_patterns = [
     # test
+    url(r'^shutdownforcodecoverage/$', ShutdownApp.as_view(), name='v1_api_stop_app'),
+
     url(r'^products/$', Products.as_view(), name='v1_api_browser_list'),
     url(r'^locales/$', Locales.as_view(), name='v1_api_locale_list'),
     url(r'^resolutions/$', Resolutions.as_view(), name='v1_api_resolution_list'),
@@ -43,6 +45,9 @@ parallel_patterns = [
     url(r'^capturedimage/(?P<event_id>\d+)$', EventCapture.as_view(), name='v1_api_eventcapture'),
     url(r'^capture/(?P<capture_uuid>[\w\-]+)$', ShowCapture.as_view(), name='v1_api_capture'),
     url(r'^captures/(?P<testcase_id>[\w\-]+|)/(?P<runid>\d+)$', ShowTestCaptures.as_view(), name='v1_api_captures'),
+    url(r'^video/(?P<testcase_id>[\w\-]+|)/$', stream_video, name='stream_video'),
+    url(r'^video/(?P<testcase_id>[\w\-]+|)/(?P<runid>\d+)$', ShowTestVideo.as_view(), name='v1_api_video'),
+    url(r'^textresources/search/$', TextResource.as_view(), name='v1_api_textresource'),
 
     # event
     url(r'^uievents_stat/(?P<start_tid>[\w\-]+|)/(?P<end_tid>[\w\-]+|)$',

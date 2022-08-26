@@ -1,0 +1,29 @@
+# Python Base Image
+FROM python:3.7
+RUN echo 'Base image setup completed'
+
+# Environment Variable
+ENV PYTHONUNBUFFERED 1
+ENV WORKDIR /app
+# Make and set working directory
+RUN echo 'Making the working directory "/app"'
+RUN mkdir ${WORKDIR}
+
+# Set Work Directory
+WORKDIR ${WORKDIR}
+
+# Copy the requirement file to working directory
+RUN echo 'Copying the requirement file to working directory'
+COPY requirements-test.txt $WORKDIR
+
+# Install dependecies with pip
+RUN echo 'Installing the dependencies'
+RUN pip install -r requirements-test.txt
+
+RUN echo 'Copying the project code to working directory'
+COPY gotests $WORKDIR
+
+EXPOSE 9100
+RUN #python manage.py migrate --settings=vuserver.settings.test
+# Python execute command
+CMD ["bash", "apitests/get-coverage.sh"]

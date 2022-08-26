@@ -22,7 +22,7 @@
             {% endif %}
                 <div class="cell">
                     <h5 align="left">{{ console.locale }}</h5>
-                    <iframe align="left" width="480" height="300" src="{{ console.vnc_webprotocol }}://{{ console.vnc_host }}:{{ console.vnc_port }}/?password=vncpassword&view_only=true&resize=downscale&clip=false&autoconnect=1"  frameborder="0" allowfullscreen></iframe>
+                    <iframe align="left" width="480" height="300" src="{{ console.vnc_protocol }}://{{ console.vnc_host }}:{{ console.vnc_port }}/?password=vncpassword&view_only=true&resize=downscale&clip=false&autoconnect=1"  frameborder="0" allowfullscreen></iframe>
                 </div>
             {% if forloop.counter0|add:-2|divisibleby:3 %}
             </div>

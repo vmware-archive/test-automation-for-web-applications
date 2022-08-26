@@ -1,15 +1,16 @@
 # Copyright 2022 VMware, Inc.
 # SPDX-License-Identifier: Apache License 2.0
 
-from urllib import parse
-from .models import TestCase
 import json
-from channels.generic.websocket import JsonWebsocketConsumer
-import json
-from channels.layers import get_channel_layer
-from asgiref.sync import async_to_sync
 import logging
+from urllib import parse
+
+from asgiref.sync import async_to_sync
+from channels.generic.websocket import JsonWebsocketConsumer
+from channels.layers import get_channel_layer
+
 logger = logging.getLogger('parallel')
+
 
 def send_ws_message(product,
                     uuid,
@@ -148,4 +149,4 @@ class StatusConsumer(JsonWebsocketConsumer):
         if role:
             return "status-%s-%s" % (role, testcase_uuid)
         else:
-            return "status-%s" % (testcase_uuid)
+            return "status-%s" % testcase_uuid

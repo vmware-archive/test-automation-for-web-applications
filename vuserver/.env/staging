@@ -1,0 +1,4 @@
+DJANGO_SETTINGS_MODULE=vuserver.settings.staging
+DEBUG=True
+REDIS_HOST=staging.tawa.vmware.com
+REDIS_PORT=16379

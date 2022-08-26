@@ -4,8 +4,10 @@
 
 export const environment = {
   production: false,
-  testApiUrl : "http://10.153.249.21:9000",
-  defaultUser: "tawa"
+  testApiUrl : "https://vtaas-micro-stage.eng.vmware.com",
+  defaultUser: "tawa",
+  consoleUrl: "https://vtaas-micro-stage.eng.vmware.com",
+  liveConsoleBase: "http://10.153.249.21:9100"
 };
 
 /*

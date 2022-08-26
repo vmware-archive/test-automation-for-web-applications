@@ -1,0 +1,9 @@
+[run]
+branch = True
+source = .
+omit = *migrations*, *venv*, .tox, manage.py, *settings*, server.py
+[report]
+show_missing = True
+skip_covered = True
+[paths]
+vuserver = vuserver

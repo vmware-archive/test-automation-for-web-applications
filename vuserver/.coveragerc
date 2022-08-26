@@ -1,0 +1,9 @@
+[run]
+branch = True
+source = vuserver
+omit = *migrations*, *venv*, .tox
+[report]
+show_missing = False
+skip_covered = False
+[paths]
+vuserver = vuserver

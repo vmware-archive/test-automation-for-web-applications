@@ -1,36 +1,21 @@
 # Copyright 2022 VMware, Inc.
 # SPDX-License-Identifier: Apache License 2.0
 
-import os
-import time
-import requests
-import json
-from datetime import datetime, timezone, timedelta
-import base64
-
-from .models import Product, TestCase, Client, Capture, UIEvent, Console
-from script.models import Script
-from .serializers import ProductSerializer, TestCaseSerializer, ClientSerializer, CaptureSerializer
-from .serializers import UIEventSerializer, UIEventConfigSerializer
-from script.serializers import ScriptSerializer
-from script.views import getScriptEvents
-
-from django.http import Http404
-from django.shortcuts import render
-from django.contrib.auth.decorators import login_required
-from django.db.models import Q, F, Count
-from django.db import transaction
-from django.contrib.auth.models import User
-from django.views.decorators.csrf import csrf_exempt
-
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import status
-from rest_framework.decorators import api_view
-from django.conf import settings
-from .consumers import send_ws_message, send_ws_status
 import logging
+from datetime import timedelta
+
+from django.views.decorators.csrf import csrf_exempt
+from rest_framework.response import Response
+from rest_framework.views import APIView
+
+from script.models import Script
+from script.views import getScriptEvents
+from .models import TestCase, Capture, UIEvent
+from .serializers import CaptureSerializer
+from .serializers import UIEventSerializer, UIEventConfigSerializer
+
 logger = logging.getLogger('parallel')
+
 
 def adjust_events(events):
     """
@@ -61,14 +46,14 @@ def adjust_events(events):
                 evt.id,
             ]
             continue
-        elif (evt.action == 'select'):
+        elif evt.action == 'select':
             if (evt.obj_text == ';;-1') or ((evt.obj_value == '') and (evt.obj_text == '')):
                 # VIU-1967
                 exclude_ids += [
                     evt.id,
                 ]
                 continue
-            if (evt.obj_text == ''):
+            if evt.obj_text == '':
                 mIndex = evt.obj_value.find(':')
                 if mIndex > 0:
                     evt.obj_text = evt.obj_value + ';;' + evt.obj_value[:mIndex]
@@ -90,7 +75,7 @@ def adjust_events(events):
                 exclude_ids += [
                     evt.id,
                 ]
-        elif (evt.event == '2'):
+        elif evt.event == '2':
             if (evt.obj_value == 'on') and (last_event.event != "10"):
                 exclude_ids += [
                     evt.id,
@@ -104,7 +89,7 @@ def adjust_events(events):
             #         continue
         elif evt.event == '1':
             # VIU-1730
-            if (last_event.event in ['19', '20']):
+            if last_event.event in ['19', '20']:
                 if last_time_diff < timedelta(milliseconds=1200):
                     exclude_ids += [
                         evt.id,
@@ -121,14 +106,14 @@ def adjust_events(events):
                         evt.id,
                     ]
                     continue
-            elif (last_event.event in ['9', '10'] and last_event.obj_x.lower() == 'enter'):
+            elif last_event.event in ['9', '10'] and last_event.obj_x.lower() == 'enter':
                 # VIU-2104
                 if last_time_diff < timedelta(milliseconds=120):
                     exclude_ids += [
                         evt.id,
                     ]
                     continue
-        elif (evt.event in ['9', '10']):
+        elif evt.event in ['9', '10']:
             if (evt.obj_x == '') and (evt.obj_y == 'Space'):
                 evt.obj_x = ' '
                 evt.save()
@@ -144,7 +129,7 @@ def adjust_events(events):
                 if last_time_diff < timedelta(milliseconds=120):
                     evt.recordtime = last_event.recordtime - timedelta(milliseconds=1)
                     evt.save()
-        elif (evt.event in ['19', '20']):
+        elif evt.event in ['19', '20']:
             if last_event.event == '1':
                 # remove click
                 if last_time_diff < timedelta(milliseconds=1200):
@@ -165,7 +150,7 @@ def adjust_events(events):
                 mousedown_events.append(evt)
             elif evt.event == '20':
                 if evt.action == 'select':
-                    #VIU-3296
+                    # VIU-3296
                     last_event = evt
                     continue
                 if len(mousedown_events) == 0:
@@ -254,6 +239,7 @@ class SingleRunEvents(APIView):
         serializer = UIEventSerializer(events, many=True)
         return Response({'message': 'success', 'testcase': testcase_id, 'uievents': serializer.data, 'captures': captures})
 
+
 class SingleRunScriptEvents(APIView):
     """
     Get script events of single test run.
@@ -262,18 +248,11 @@ class SingleRunScriptEvents(APIView):
         testcases = TestCase.objects.filter(id=testcase_id)
         if not len(testcases):
             return Response({'message': 'Error TestCase'})
-        current_testcase = testcases[0]
 
         script_events = getScriptEvents(testcases[0], runid)
 
-        # append capture
-        captures = []
-        include_captures = request.GET.get('include_captures', default='')
-        if include_captures:
-            cs = Capture.objects.filter(captureid__in=capture_ids)
-            captures = CaptureSerializer(cs, many=True).data
-
-        return Response({'message': 'success', 'testcase': testcase_id, 'uievents': script_events, 'captures': captures})
+        return Response({'message': 'success', 'testcase': testcase_id,
+                         'uievents': script_events})
 
 
 class LastEvent(APIView):
@@ -327,7 +306,6 @@ class StatUIEvents(APIView):
         return Response({'message': 'success', 'stat': stat})
 
 
-
 class SearchTextEvents(APIView):
     """
     Get events by ids.
@@ -340,7 +318,7 @@ class SearchTextEvents(APIView):
         key = request.data.get('key', '')
         scripts = request.data.get('scripts', '')
 
-        if (not key):
+        if not key:
             return Response({'results': []})
 
         results = []

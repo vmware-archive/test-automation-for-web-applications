@@ -1,0 +1,44 @@
+version: '2.2'
+
+services:
+  redis:
+    image: 'redis:6'
+    # command: redis-server --requirepass yourpassword
+    ports:
+      - '16379:6379'
+    networks:
+      - main
+    container_name: vuserver-redis
+
+  channels:
+    image: harbor-repo.vmware.com/vtaas_workers/vuserver:tawa
+    command: daphne -b 0.0.0.0 -p 9101 vuserver.asgi:application
+    env_file:
+      - .env/staging
+    ports:
+      - "9101:9101"
+    networks:
+      - main
+    links:
+      - redis
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: sh -c "python manage.py collectstatic --no-input && python manage.py migrate --settings=vuserver.settings.staging && gunicorn vuserver.wsgi -b 0.0.0.0:9100"
+    container_name: vuserver-app
+    env_file:
+      - .env/staging
+    depends_on:
+      - redis
+    expose:
+      - "9100"
+    ports:
+      - "9100:9100"
+    volumes:
+      - /var/vms_files/tawa:/tawa
+    networks:
+      - main
+    restart: on-failure
+networks:
+  main:

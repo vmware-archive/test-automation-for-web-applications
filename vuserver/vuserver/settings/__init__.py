@@ -4,3 +4,5 @@ if settings_module.find('local') > 0:
     from .local import *
 elif settings_module.find('staging') > 0:
     from .staging import *
+elif settings_module.find('decc') > 0:
+    from .staging import *

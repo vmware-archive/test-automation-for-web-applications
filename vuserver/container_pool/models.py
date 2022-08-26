@@ -19,7 +19,6 @@ class Host(models.Model):
     password = models.CharField(u'Password', max_length=64, default='v')
     deployroot = models.CharField(u'Deployment Root', max_length=256, blank=True, default='/root')
     status = models.CharField(u'Status', max_length=64, choices=STATUS, blank=True, default=STATUS_MAINTAINANCE)
-
     capacity = models.IntegerField(u'Capacity', blank=True, default=20)
     startport = models.IntegerField(u'Start Port', blank=True, default=6950)
     current_num = models.IntegerField(u'Deployed Number', blank=True, default=0)
@@ -56,13 +55,20 @@ class Host(models.Model):
 
 
 class Deployment(models.Model):
-    uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    STATUS_RUNNING = u'running'
+    STATUS_STOPPED = u'stopped'
+    STATUS = ((STATUS_RUNNING, u'running'), (STATUS_STOPPED, u'stopped'))
+
+    id = models.AutoField(u'ID', primary_key=True)
+    uuid = models.UUIDField(u'UUID', default=uuid.uuid4, editable=False)
     host = models.CharField('Host FQDN/IP', max_length=256, default='')
     index = models.IntegerField(u'Host Index Number', blank=True, default=-1)
     port = models.IntegerField(u'Host Port', blank=True, default=0)
     deploypath = models.CharField(u'Deployment Path', max_length=256, blank=True, default='')
     consoleid = models.IntegerField(u'Console ID', blank=True, default=0)
     apptype = models.CharField(u'User Name', max_length=64, default='')
+    status = models.CharField(u'Status', max_length=64, choices=STATUS, blank=True, default=STATUS_STOPPED)
+    pooltype = models.CharField('Pool Type', max_length=256, default='localhost')
 
     def __str__(self):
         return self.uuid

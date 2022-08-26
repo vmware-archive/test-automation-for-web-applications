@@ -1,0 +1,22 @@
+# includes.yaml
+---
+
+name: Common test information
+description: Login information for test server
+
+variables:
+  SERVER_ROOT: http://127.0.0.1:9100
+  TESTCASE_ID: '5087'   #	cov-01
+  SCRIPT_ID: '5863'
+  PARALLEL_TEST_UUID: '7cd9f75a-b218-4c79-be31-0b018cfe6d38' # vc-sanity-check
+  TESTCASE_UUID: 'ebb8c359-480f-4ec2-a883-d3f63cc621bc'  # 	cov-01
+  TESTCASE_UUID2: '89b26523-7bab-48f0-8ea5-1e6591d7ae07'  # 	cov-05
+  ACCESSIBILITY_TEST_UUID: 'e1e59c6a-9dd3-4bd3-8f6d-e9e4308815c5' # apitest01
+  RUN_ID: '1'
+  CAPTURE_ID: '1de7a6ab-6644-4742-973f-1824cbf1f35f'
+  USER_NAME: 'zzhuo'
+  SUITE_UUID: 'fec7062a-403a-4933-aa4c-20b2e23ff8de' # db-test3
+  CLONED_TEST_ID: '5777'
+  CLONED_RUN_ID: '0'
+  CAPTURE_EVENT_ID: '974701'
+  CLIENT_UUID: !uuid

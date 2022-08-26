@@ -1,5 +1,7 @@
 export const environment = {
   production: true,
-  testApiUrl : "http://10.153.249.21:9000",
-  defaultUser: "tawa"
+  testApiUrl : "https://vtaas-micro.eng.vmware.com",
+  defaultUser: "tawa",
+  consoleUrl: "https://vtaas-micro.eng.vmware.com",
+  liveConsoleBase: "http://vtaas-micro.eng.vmware.com"
 };

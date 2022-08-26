@@ -13,7 +13,7 @@ import { FooterComponent } from './components/footer/footer.component';
 import { HomeComponent } from './components/home/home.component';
 import { TestAPIService } from './services/test-api.service';
 import { HttpClientModule } from '@angular/common/http';
-import { AddTestComponent } from './components/add-test/add-test.component';
+import { AddTestComponent } from './components/add-clone-test/add-clone-test.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { AlertComponent } from './components/alert/alert.component';
 import { DeleteTestComponent } from './components/delete-test/delete-test.component';

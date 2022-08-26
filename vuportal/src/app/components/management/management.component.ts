@@ -5,7 +5,7 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { Test } from 'src/app/model/test';
 import { TestAPIService } from 'src/app/services/test-api.service';
 import { environment } from 'src/environments/environment';
-import { AddTestComponent } from '../add-test/add-test.component';
+import { AddTestComponent } from '../add-clone-test/add-clone-test.component';
 import { AlertComponent } from '../alert/alert.component';
 import { CloneTestComponent } from '../clone-test/clone-test.component';
 import { DeleteTestComponent } from '../delete-test/delete-test.component';
@@ -28,18 +28,21 @@ export class ManagementComponent implements OnInit {
     @ViewChild(CloneTestComponent) cloneTestComponent: CloneTestComponent;
     @ViewChild(ViewReportComponent) viewReportComponent: ViewReportComponent;
 
-    userName: string = environment.defaultUser;
+    // userName: string = environment.defaultUser;
+    userName: string = "";
     localeList: string [] = [];
     resolutionList: string [] = [];
     productList: string [] = [];
     loading = false;
     selectedTests: Test[] = [];
     testList: Test[] = [];
-    baseUrl: string = environment.testApiUrl;
+    liveConsoleBase: string = environment.testApiUrl;
 
     constructor(private testAPIService: TestAPIService) { }
 
     ngOnInit(): void {
+        this.userName = localStorage.getItem("user");
+        console.log("username is ", this.userName)
         this.getLocales();
         this.getProducts();
         this.getResolutions();
@@ -110,14 +113,16 @@ export class ManagementComponent implements OnInit {
             )
     }
 
-    addTest() {
+    addCloneViewTest(isAdded) {
         let obj = {
             username: this.userName,
             products: this.productList,
             locales: this.localeList,
             resolutions: this.resolutionList
         }
-        this.addTestComponent.transforInfo(obj);
+        setTimeout(() => {
+            this.addTestComponent.transforInfo(obj, isAdded, this.selectedTests[0]);
+        },500) 
     }
 
     addedTest(event) {
@@ -129,6 +134,18 @@ export class ManagementComponent implements OnInit {
             this.testList.unshift(addedTest)
         } else {
             this.alertComponent.alertActions("Fail to add test!", "danger");
+        }
+    }
+
+    viewClonedTest(event) {
+        console.log("cloned event", event);
+        let isSuccess = event.isSuccess;
+        if (isSuccess) {
+            let clonedTest: Test = event.result
+            this.alertComponent.alertActions("Cloned test " + clonedTest.name + " successfully!", "success");
+            this.testList.unshift(clonedTest)
+        } else {
+            this.alertComponent.alertActions("Fail to clone test!", "danger");
         }
     }
 
@@ -191,7 +208,7 @@ export class ManagementComponent implements OnInit {
                                 // let port = leaderConsole.vnc_port + leaderConsole.index + 1;
                                 let leaderUrl = leaderConsole.vnc_protocol + "://" + leaderConsole.vnc_host + ":" + String(leaderConsole.vnc_port) + "/?password=vncpassword&view_only=false";
                                 console.log("open window to recording - ", leaderUrl)
-                                let newWindow1 = window.open(this.baseUrl + '/parallel/live/' + testcase.uuid, testcase.uuid);
+                                let newWindow1 = window.open(this.liveConsoleBase + '/parallel/live/' + testcase.uuid, testcase.uuid);
                                 let newWindow2 = window.open(leaderUrl, leaderUrl);
                             } else if(consoles.length == 1){
                                 let leaderConsole = consoles.filter(el => { return el.role === "leader"; })[0];
@@ -282,7 +299,7 @@ export class ManagementComponent implements OnInit {
                         // let port = leaderConsole.vnc_port + leaderConsole.index + 1;
                         let leaderUrl = leaderConsole.vnc_protocol + "://" + leaderConsole.vnc_host + ":" + String(leaderConsole.vnc_port) + "/?password=vncpassword&view_only=false";
                         console.log("open window to recording - ", leaderUrl)
-                        let newWindow1 = window.open(this.baseUrl + '/parallel/live/' + testcase.uuid, testcase.uuid);
+                        let newWindow1 = window.open(this.liveConsoleBase + '/parallel/live/' + testcase.uuid, testcase.uuid);
                         let newWindow2 = window.open(leaderUrl, leaderUrl);
                     } else if(consoles.length == 1){
                         let leaderConsole = consoles.filter(el => { return el.role === "leader"; })[0];

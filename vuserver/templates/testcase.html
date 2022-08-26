@@ -1,4 +1,4 @@
-<!-- 
+<!--
 	Copyright 2022 VMware, Inc.
 	SPDX-License-Identifier: Apache License 2.0
 -->
@@ -20,7 +20,7 @@
         <script>
             $(function () {
                 // Correctly decide between ws:// and wss://
-                var ws_path = "ws://" + document.location.host + "/status/{{ testcase.uuid }}/"
+                var ws_path = "{{ wsserver }}/status/{{ testcase.uuid }}/"
                 console.log("Connecting to " + ws_path);
 
                 var webSocketBridge = new ReconnectingWebSocket(ws_path);
