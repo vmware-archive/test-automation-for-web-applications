@@ -3,6 +3,7 @@
 import logging
 import mimetypes
 import os
+import pathlib
 import re
 
 import cv2
@@ -368,6 +369,10 @@ class ShowTestVideo(APIView):
             return None
 
     def get(self, request, testcase_id, runid):
+        path = pathlib.Path("/usr/bin/ffmpeg")
+        if not path.exists() or not path.is_file() or \
+                not os.access("/usr/bin/ffmpeg", os.X_OK):
+            return Response({'message': 'No ffmpeg installed'})
         current_testcase = self.get_object(testcase_id)
         if not current_testcase:
             return Response({'message': 'TestCase not exist.'})
