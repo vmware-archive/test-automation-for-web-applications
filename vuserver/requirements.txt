@@ -11,6 +11,6 @@ fabric==2.4.0
 gunicorn==19.9.0
 mysqlclient==2.1.0
 redis==4.5.4
-requests==2.22.0
+requests>=2.31.0
 drf-yasg==1.20.0
 opencv-python~=4.6.0.66
